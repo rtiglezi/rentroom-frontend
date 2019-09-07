@@ -41,6 +41,7 @@ import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
 
 Vue.use(require('vue-moment'));
+
 Vue.use(VueTheMask)
 Vue.use(VueDraggable);
 

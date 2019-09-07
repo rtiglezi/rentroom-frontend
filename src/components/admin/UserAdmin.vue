@@ -208,7 +208,6 @@
           >{{row.item.tenantDetails[index].alias}}</div>
         </template>
 
-       
 
         <template slot="actions" slot-scope="data">
           <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">

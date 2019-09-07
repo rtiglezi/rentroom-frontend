@@ -2,6 +2,18 @@
   <div class="home">
     <PageTitle main="home" />
 
+
+    <b-modal v-bind:hide-footer="true" id="mymodalconfirm" v-model="modalConfirm" title="Confirma a Reserva?">
+      Ao clicar no botão de confirmação abaixo, você efetivará a reserva e o valor selecionado será debitado de seu saldo.<br />
+      Essa reserva poderá ser cancelada em até duas horas antes da hora reservada.  
+
+      <hr>
+      <b-button class="mr-2" @click="save" variant="danger">OK, reservar agora!</b-button>
+      <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
+    
+    </b-modal>
+   
+
     <b-modal v-bind:hide-footer="true" id="mymodal" v-model="modalShow" title="Reserva de Sala">
       <!-- INICIO FORMULÁRIO DE CADASTRO -->
       <b-form v-on:submit.prevent="onSubmit">
@@ -9,15 +21,29 @@
           <b-col sm="12">
             <div style="text-align:center" class="mt-2 mb-3">
               Reservando a sala
-              <strong>{{ rent.roomName }}</strong>
-              <br />Data:
-              <strong>{{ rent.date }}</strong>
-              | Valor:
-              <strong>{{ rent.value }}</strong>
+              <strong>{{ rent.roomName }}</strong>,
+              <br />para
+              <strong>{{ rent.date | moment("L") }}</strong>,
+              às
+              <strong>{{ rent.date | moment("HH:mm") }}h</strong>,
+              <br />ao valor de
+              <strong>
+                <input
+                  type="text"
+                  readonly
+                  style="background: transparent; border: none; width: 85px"
+                  v-money="money"
+                  v-model="valueBR"
+                />
+              </strong>
               <hr />
             </div>
             <div>
-              <b-form-group label="Paciente:" label-for="rentPatient">
+              <b-form-group
+                label="Paciente:"
+                label-for="rentPatient"
+                description="Esta informação só será visível para você."
+              >
                 <b-form-input
                   class="input-text"
                   ref="rentPatient"
@@ -25,7 +51,11 @@
                   v-model="rent.patient"
                 ></b-form-input>
               </b-form-group>
-              <b-form-group label="Observações:" label-for="rentObs">
+              <b-form-group
+                label="Observações:"
+                label-for="rentObs"
+                description="Esta informação só será visível para você."
+              >
                 <b-form-textarea class="input-text" ref="rentObs" id="rentObs" v-model="rent.obs"></b-form-textarea>
               </b-form-group>
             </div>
@@ -33,7 +63,7 @@
         </b-row>
 
         <div class="text-right">
-          <b-button class="btn-main ml-2" v-if="mode === 'save'" @click="save">
+          <b-button  v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
             <i class="fa fa-send fa-lg"></i>
             Inserir
           </b-button>
@@ -95,12 +125,9 @@
         </template>
         <template slot="actions" slot-scope="row">
           <div v-if="getStatus(row.item.hour)">
-             <span style="color:grey; font-size:.9em">
-               RESERVADO
-             </span>
+            <span style="color:grey; font-size:.9em; font-weight: bold">Reservado</span>
           </div>
           <div v-else>
-            
             <b-button
               v-if="row.item.isActive"
               v-b-modal="'mymodal'"
@@ -109,10 +136,7 @@
               @click="reserv(row.item.value, row.item.hour)"
             >Reservar a {{ row.item.value }}</b-button>
 
-            <span v-else style="color:grey; font-size: .9em">
-              INATIVO
-            </span>
-            
+            <span v-else style="color:grey; font-size: .9em">Desativado pelo locatário</span>
           </div>
         </template>
       </b-table>
@@ -130,6 +154,7 @@ export default {
   components: { PageTitle },
   data: function() {
     return {
+      valueBR: null,
       selectedRoom: null,
       money: {
         decimal: ",",
@@ -151,6 +176,7 @@ export default {
         obs: null
       },
       modalShow: false,
+      modalConfirm: false,
       rooms: [],
       users: [],
       schedule: [],
@@ -213,7 +239,6 @@ export default {
     },
     getStatus(hourReserved) {
       let reserved = false;
-
       if (this.rents) {
         this.rents.map(r => {
           let hourMap = this.$moment(r.date).format("HH:mm");
@@ -222,11 +247,13 @@ export default {
           }
         });
       }
-
       return reserved;
     },
     clickModalBtn() {
       this.modalShow = false;
+    },
+    clickModalBtnConfirm() {
+      this.modalConfirm = false;
     },
     formatCurrencyFromRealToMongoNumber(val) {
       val = val
@@ -242,6 +269,7 @@ export default {
       this.rent.obs = null;
       this.rent.value = this.formatCurrencyFromRealToMongoNumber(value);
       this.rent.date = this.selectedDate + " " + hour;
+      this.valueBR = this.rent.value;
     },
     save() {
       axios
@@ -259,10 +287,11 @@ export default {
       this.loadRooms();
       this.loadUsers();
       this.clickModalBtn();
+      this.clickModalBtnConfirm();
     },
     getVariant(selectedRoom) {
       if (selectedRoom === this.rent.room) {
-        return "secondary";
+        return "primary";
       } else {
         return "light";
       }
