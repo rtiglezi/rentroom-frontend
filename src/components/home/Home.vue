@@ -1,31 +1,22 @@
 <template>
   <div class="home">
     <PageTitle main="home" />
+
     <b-modal v-bind:hide-footer="true" id="mymodal" v-model="modalShow" title="Reserva de Sala">
       <!-- INICIO FORMULÁRIO DE CADASTRO -->
       <b-form v-on:submit.prevent="onSubmit">
         <b-row>
-          <b-col md="3" sm="12" class="box-ico">
-            <i class="fa fa-building fa-2x" aria-hidden="true"></i>
-            Reserva da sala
-            <strong>{{ rent.roomName }}</strong>
-          </b-col>
-          <b-col md="9" sm="12">
+          <b-col sm="12">
             <div style="text-align:center" class="mt-2 mb-3">
-              Data:
+              Reservando a sala
+              <strong>{{ rent.roomName }}</strong>
+              <br />Data:
               <strong>{{ rent.date }}</strong>
-              | Hora:
-              <strong>{{ rent.hour }}</strong>
               | Valor:
               <strong>{{ rent.value }}</strong>
+              <hr />
             </div>
             <div>
-              <b-form-group label="Profissional:" label-for="rentUser">
-                <b-form-select ref="rentUser" id="rentUser" v-model="rent.user">
-                  <option v-for="user in users" :value="user._id" :key="user._id">{{user.name}}</option>
-                </b-form-select>
-              </b-form-group>
-
               <b-form-group label="Paciente:" label-for="rentPatient">
                 <b-form-input
                   class="input-text"
@@ -60,19 +51,22 @@
       <!-- FINAL FORMULÁRIO DE CADASTRO -->
     </b-modal>
 
-    <b-form-group label="Informe a data:" label-for="date">
-      <b-form-input type="date" ref="date" id="date" class="input-text" @change="setDate($event)"></b-form-input>
-    </b-form-group>
+    <div style="text-align:center">
+      <div class="mb-2">Data desejada:</div>
+      <datetime v-model="selectedDate" placeholder="busque a data aqui..."></datetime>
+      <hr />
+    </div>
 
     <div v-if="rent.date" style="text-align:center">
-      Selecione a sala:
-      <br />
+      <div class="mb-2">Selecione uma sala:</div>
       <b-button
+        :variant="getVariant(item._id)"
         class="mr-1"
         v-for="item in rooms"
         :key="item._id"
-        @click="setRoom(item._id, item.name)"
+        @click="setRoom(item)"
       >{{ item.name }}</b-button>
+      <hr />
     </div>
     <div>
       <b-table
@@ -86,8 +80,8 @@
         :fields="items"
       >
         <template slot="hour" slot-scope="row">
-          <div v-if="getStatus(row.item.hour)">
-            <div style="color:red">
+          <div v-if="getStatus(row.item.hour) || !row.item.isActive ">
+            <div style="color:#bbb">
               <strong>{{ row.item.hour }}</strong>
               <br />(indisponível)
             </div>
@@ -101,18 +95,26 @@
         </template>
         <template slot="actions" slot-scope="row">
           <div v-if="getStatus(row.item.hour)">
-            <b-button size="sm" variant="danger" disabled>Horário já reservado</b-button>
+             <span style="color:grey; font-size:.9em">
+               RESERVADO
+             </span>
           </div>
           <div v-else>
+            
             <b-button
+              v-if="row.item.isActive"
               v-b-modal="'mymodal'"
               size="sm"
               variant="success"
               @click="reserv(row.item.value, row.item.hour)"
-            >Reservar a R$ {{ row.item.value.toFixed(2) }}</b-button>
+            >Reservar a {{ row.item.value }}</b-button>
+
+            <span v-else style="color:grey; font-size: .9em">
+              INATIVO
+            </span>
+            
           </div>
         </template>
-        <template slot="value" slot-scope="row">{{row.item.value.toFixed(2)}}</template>
       </b-table>
     </div>
   </div>
@@ -120,7 +122,7 @@
 
 <script>
 import PageTitle from "../template/PageTitle";
-import { baseApiUrl, showError } from "@/global";
+import { baseApiUrl } from "@/global";
 import axios from "axios";
 
 export default {
@@ -128,6 +130,15 @@ export default {
   components: { PageTitle },
   data: function() {
     return {
+      selectedRoom: null,
+      money: {
+        decimal: ",",
+        thousands: ".",
+        prefix: "R$ ",
+        suffix: "",
+        precision: 2,
+        masked: false
+      },
       selectedDate: null,
       mode: null,
       rent: {
@@ -145,6 +156,11 @@ export default {
       schedule: [],
       items: []
     };
+  },
+  watch: {
+    selectedDate: function(val) {
+      this.setDate(val.toString().replace("T00:00:00.000Z", ""));
+    }
   },
   methods: {
     loadRooms() {
@@ -165,10 +181,11 @@ export default {
       this.schedule = null;
       this.rent.room = null;
     },
-    setRoom(room, roomName) {
-      this.rent.room = room;
-      this.rent.roomName = roomName;
-      const url = `${baseApiUrl}/rents?room=${room}&date=${this.selectedDate}`;
+    setRoom(room) {
+      this.selectedRoom = room;
+      this.rent.room = room._id;
+      this.rent.roomName = room.name;
+      const url = `${baseApiUrl}/rents?room=${room._id}&date=${this.selectedDate}`;
       axios.get(url).then(res => {
         this.rents = res.data;
 
@@ -191,88 +208,7 @@ export default {
           }
         ];
 
-        this.schedule = [
-          {
-            hour: "04:00",
-            value: 15.0
-          },
-          {
-            hour: "05:00",
-            value: 20.0
-          },
-          {
-            hour: "06:00",
-            value: 25.0
-          },
-          {
-            hour: "07:00",
-            value: 30.0
-          },
-          {
-            hour: "08:00",
-            value: 30.0
-          },
-          {
-            hour: "09:00",
-            value: 30.0
-          },
-          {
-            hour: "10:00",
-            value: 30.0
-          },
-          {
-            hour: "11:00",
-            value: 25.0
-          },
-          {
-            hour: "12:00",
-            value: 25.0
-          },
-          {
-            hour: "13:00",
-            value: 25.0
-          },
-          {
-            hour: "14:00",
-            value: 25.0
-          },
-          {
-            hour: "15:00",
-            value: 25.0
-          },
-          {
-            hour: "16:00",
-            value: 30.0
-          },
-          {
-            hour: "17:00",
-            value: 30.0
-          },
-          {
-            hour: "18:00",
-            value: 35.0
-          },
-          {
-            hour: "19:00",
-            value: 35.0
-          },
-          {
-            hour: "20:00",
-            value: 30.0
-          },
-          {
-            hour: "21:00",
-            value: 25.0
-          },
-          {
-            hour: "22:00",
-            value: 20.0
-          },
-          {
-            hour: "23:00",
-            value: 20.0
-          }
-        ];
+        this.schedule = room.schedule;
       });
     },
     getStatus(hourReserved) {
@@ -292,9 +228,19 @@ export default {
     clickModalBtn() {
       this.modalShow = false;
     },
+    formatCurrencyFromRealToMongoNumber(val) {
+      val = val
+        .replace("R$", "")
+        .replace(",", "*")
+        .replace(/\./, "")
+        .replace("*", ".");
+      return val;
+    },
     reserv(value, hour) {
       this.mode = "save";
-      this.rent.value = value;
+      this.rent.patient = null;
+      this.rent.obs = null;
+      this.rent.value = this.formatCurrencyFromRealToMongoNumber(value);
       this.rent.date = this.selectedDate + " " + hour;
     },
     save() {
@@ -305,7 +251,7 @@ export default {
             msg: `Reserva efetuada com sucesso.`
           });
           this.refresh();
-          this.setRoom(this.rent.room, this.rent.roomName);
+          this.setRoom(this.selectedRoom);
         })
         .catch();
     },
@@ -313,6 +259,13 @@ export default {
       this.loadRooms();
       this.loadUsers();
       this.clickModalBtn();
+    },
+    getVariant(selectedRoom) {
+      if (selectedRoom === this.rent.room) {
+        return "secondary";
+      } else {
+        return "light";
+      }
     }
   },
   mounted() {

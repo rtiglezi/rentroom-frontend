@@ -117,7 +117,7 @@ body {
 
 
 .table-td-first {
-  background-color: rgb(240, 240, 163);
+  background-color: white;
   color: brown;  
 }
 

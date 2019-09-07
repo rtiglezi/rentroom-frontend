@@ -198,10 +198,7 @@
         small
         :fields="items"
       >
-        <template
-          slot="created_at"
-          slot-scope="row"
-        >{{ row.item.created_at | moment("DD/MM/YYYY hh:mm") }}</template>
+       
 
         <template slot="tenantDetails" slot-scope="row">
           <div
@@ -211,21 +208,11 @@
           >{{row.item.tenantDetails[index].alias}}</div>
         </template>
 
-        <template slot="allowedRoomsDetails" slot-scope="row">
-          <div
-            v-for="(item, index) in row.item.allowedRoomsDetails"
-            :key="item.id"
-            :index="index"
-          >{{row.item.allowedRoomsDetails[index].name}}</div>
-        </template>
-
-        <template slot="profiles" slot-scope="row">
-          <div v-for="(value, key) in row.item.profiles" :key="key">{{ value }}</div>
-        </template>
+       
 
         <template slot="actions" slot-scope="data">
           <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
-            <i class="fas fa-pen-square" title="Editar o registro."></i>
+            <i class="fas fa-pen-square" title="Editar o registro."></i> Editar
           </b-button>
 
           <b-button
@@ -234,7 +221,7 @@
             class="ml-1"
             @click="loadResource(data.item, 'remove')"
           >
-            <i class="far fa-trash-alt" title="Excluir o registro."></i>
+            <i class="far fa-trash-alt" title="Excluir o registro."></i> Excluir
           </b-button>
         </template>
       </b-table>
@@ -300,43 +287,12 @@ export default {
           thClass: "table-th",
           tdClass: "table-td"
         },
-        {
-          key: "tenantDetails",
-          label: "Pertencente:",
-          sortable: true,
-          class: "text-left",
-          thClass: "table-th",
-          tdClass: "table-td"
-        },
-        {
-          key: "allowedRoomsDetails",
-          label: "Pode acessar:",
-          sortable: true,
-          class: "text-left",
-          thClass: "table-th",
-          tdClass: "table-td"
-        },
-        {
-          key: "profiles",
-          label: "Perfis:",
-          sortable: true,
-          class: "text-left",
-          thClass: "table-th",
-          tdClass: "table-td"
-        },
-        {
-          key: "created_at",
-          label: "Cadastrado:",
-          sortable: true,
-          class: "text-left",
-          thClass: "table-th",
-          tdClass: "table-td"
-        },
+        
         {
           key: "actions",
-          label: "Ações:",
+          label: "",
           sortable: false,
-          class: "text-left",
+          class: "text-center",
           thClass: "table-th",
           tdClass: "table-td"
         }

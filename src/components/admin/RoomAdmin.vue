@@ -14,6 +14,7 @@
           <b-col md="3" sm="12" class="box-ico">
             <i class="far fa-building fa-5x" aria-hidden="true"></i>
             <br />Cadastro de Sala
+            <br />
           </b-col>
           <b-col md="9" sm="12">
             <b-form-group label="Nome da Sala *" label-for="roomName">
@@ -33,11 +34,33 @@
               >{{ errors.first('Nome') }}</span>
             </b-form-group>
 
-            <b-form-group label="Valor de locação *" label-for="roomValue">
-              <input v-model="room.value" v-money="money" />
-            </b-form-group>
+            <hr />
 
-            <b-form-checkbox v-model="room.isActive" name="isActive">Sala ativa para locação</b-form-checkbox>
+            <div>Valor da locação por horário:</div>
+            <div class="text-left mt-2 mb-2" v-for="schedule in room.schedule" :key="schedule.hour">
+              
+              {{ schedule.hour}} -
+              
+              <input v-model="schedule.value" v-money="money" :readonly="mode === 'remove'" />
+              
+              &nbsp;
+              
+              <InputSwitch v-model="schedule.isActive" /> 
+              <span v-if="schedule.isActive">Ativo</span>
+              <span v-else>Inativo</span>
+
+              <hr>
+            
+            </div>
+
+            <hr />
+
+            <b-form-checkbox
+              v-model="room.isActive"
+              name="isActive"
+            >Marcar esta sala como ativa para locação</b-form-checkbox>
+
+            <hr />
           </b-col>
         </b-row>
 
@@ -109,27 +132,32 @@
         bordered
         :fields="items"
       >
-        <template
-          slot="created_at"
-          slot-scope="row"
-        >{{ row.item.created_at | moment("DD/MM/YYYY hh:mm") }}</template>
-
-        <template slot="value" slot-scope="row">R$ {{ row.item.value }}</template>
-
+        
         <template slot="actions" slot-scope="data">
           <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
-            <i class="fas fa-pen-square" title="Editar o registro."></i>
+            <i class="fas fa-pen-square" title="Editar o registro."></i> Editar
           </b-button>
-
           <b-button
             v-b-modal="'mymodal'"
             variant="danger"
             class="ml-1"
             @click="loadResource(data.item, 'remove')"
           >
-            <i class="far fa-trash-alt" title="Excluir o registro."></i>
+            <i class="far fa-trash-alt" title="Excluir o registro."></i> Excluir
           </b-button>
         </template>
+
+        <template slot="isActive" slot-scope="data">
+            <div v-if="data.item.isActive">
+              Ativa para locação
+            </div>
+            <div v-else>
+              Inativa para locação
+            </div>
+        </template>
+
+
+
       </b-table>
     </div>
 
@@ -170,6 +198,9 @@ export default {
         masked: false
       },
 
+      schedule: [],
+      itemsSchedule: [],
+
       modalShow: false,
       mode: "save",
       rooms: [],
@@ -182,32 +213,27 @@ export default {
       pageOptions: [5, 10, 15],
       options: [],
       items: [
-        {
+         {
           key: "name",
           label: "Sala:",
           sortable: true,
+          class: "text-left",
           thClass: "table-th-first",
           tdClass: "table-td-first"
         },
         {
-          key: "value",
-          label: "Valor:",
-          sortable: true,
-          thClass: "table-th",
-          tdClass: "table-td"
-        },
-        {
           key: "isActive",
-          label: "Ativo?",
+          label: "Status:",
           sortable: true,
+          class: "text-left",
           thClass: "table-th",
           tdClass: "table-td"
         },
         {
           key: "actions",
-          label: "Ações:",
+          label: "",
           sortable: false,
-          class: "text-left",
+          class: "text-center",
           thClass: "table-th",
           tdClass: "table-td"
         }
@@ -230,24 +256,18 @@ export default {
       const url = `${baseApiUrl}/rooms/${room._id}`;
       axios.get(url).then(res => {
         this.room = res.data;
-        this.room.value = this.room.value.toFixed(2);
       });
     },
+
     save() {
-      let val = this.room.value;
-      val = val
-        .replace("R$ ", "")
-        .replace(/\./g, "")
-        .replace(/,/g, ".");
-
-      this.room.value = val;
-
       const method = this.room._id ? "patch" : "post";
       const id = this.room._id ? `/${this.room._id}` : "";
+
       this.$validator.validateAll().then(success => {
         if (!success) {
           return;
         }
+
         axios[method](`${baseApiUrl}/rooms${id}`, this.room)
           .then(() => {
             this.refresh();
@@ -255,6 +275,7 @@ export default {
           .catch();
       });
     },
+
     remove() {
       const id = this.room._id;
       axios
@@ -297,8 +318,23 @@ export default {
     clearForm() {
       this.clickModalBtn();
       this.loadResources();
+      this.schedule = [];
+      for (var i = 6; i < 23; i++) {
+        let hour = "";
+        if (i < 10) {
+          hour = "0" + i + ":00";
+        } else {
+          hour = i + ":00";
+        }
+        this.schedule.push({
+          hour,
+          value: 0,
+          isActive: true
+        });
+      }
       this.room = {
-        isActive: true
+        isActive: true,
+        schedule: this.schedule
       };
       this.mode = "save";
     },
@@ -308,12 +344,15 @@ export default {
       } else if (this.mode === "remove") {
         this.remove();
       }
+    },
+    setMode(mode) {
+      if (!this.mode) {
+        this.mode = mode;
+      }
     }
   },
   mounted() {
-    if (!this.mode) {
-      this.mode = "save";
-    }
+    this.setMode("save");
     this.loadResources();
   }
 };
