@@ -1,9 +1,7 @@
 <template>
   <div class="header pb-2 mb-2">
-    <b-navbar toggleable="lg" type="dark" class="header-nav" v-if="user">
-      <b-navbar-brand href="#" class="header-title"  @click="navigate('/')">
-        RentRoom
-      </b-navbar-brand>
+    <b-navbar fixed toggleable="lg" type="dark" class="header-nav" v-if="user">
+      <b-navbar-brand href="#" class="header-title"><i class="fa fa-door-open"></i> Locando</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -37,13 +35,12 @@
               <i class="far fa-building menu-icon"></i> Salas
             </b-dropdown-item>
           </b-nav-item-dropdown>
-        </b-navbar-nav>
 
+          
+        </b-navbar-nav>
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          
-
           <b-nav-item-dropdown right>
             <template slot="button-content">
               <i class="fa fa-user admin-icon mr-1"></i>
@@ -59,6 +56,16 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+
+    <div class="text-center">
+      <b-button size="sm" class="mt-2 mr-1" variant="danger" @click="navigate('/')">
+      <i class="fa fa-calendar-plus fa-2x"></i><br>Reservar agora</b-button>
+      <b-button size="sm" class="mt-2 mr-1" variant="success" @click="navigate('/rents')">
+      <i class="fa fa-calendar fa-2x"></i><br>Minhas Reservas</b-button>
+      <b-button size="sm" class="mt-2 mr-1" variant="info">
+      <i class="fa fa-wallet fa-2x"></i><br>Meu Saldo
+      </b-button>
+    </div>
   </div>
 </template>
 
@@ -145,11 +152,11 @@ export default {
 
 <style>
 .header {
-  background-color: #eee;
+  background-color: #eee
 }
 .header-nav {
   z-index: 2;
-  background-color: #C82333;
+  background-color: brown;
 }
 .header-title {
   font-weight: bold;

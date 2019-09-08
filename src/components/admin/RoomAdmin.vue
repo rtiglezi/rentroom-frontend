@@ -38,19 +38,18 @@
 
             <div>Valor da locação por horário:</div>
             <div class="text-left mt-2 mb-2" v-for="schedule in room.schedule" :key="schedule.hour">
-              
               {{ schedule.hour}} -
-              
-              <input v-model="schedule.value" v-money="money" :readonly="mode === 'remove'" />
-              
+              <input
+                v-model="schedule.value"
+                v-money="money"
+                :readonly="mode === 'remove'"
+              />
               &nbsp;
-              
-              <InputSwitch v-model="schedule.isActive" /> 
+              <InputSwitch v-model="schedule.isActive" />
               <span v-if="schedule.isActive">Ativo</span>
               <span v-else>Inativo</span>
 
-              <hr>
-            
+              <hr />
             </div>
 
             <hr />
@@ -90,23 +89,8 @@
       <b-row>
         <b-col md="4">
           <div style="text-align:left">
-            <b-button
-              class="mb-2 mr-2"
-              variant="outline-secondary"
-              size="sm"
-              v-b-modal="'mymodal'"
-              @click="clearForm"
-            >
-              <i class="fas fa-plus"></i> Adicionar
-            </b-button>
-            <b-button
-              class="mb-2 mr-2"
-              variant="outline-secondary"
-              size="sm"
-              v-b-modal="'mymodal'"
-              @click="clearForm"
-            >
-              <i class="fas fa-search"></i> Pesquisar
+            <b-button class="mb-2 mr-2" variant="link" v-b-modal="'mymodal'" @click="clearForm">
+              <i class="fas fa-plus"></i> Incluir Sala
             </b-button>
           </div>
         </b-col>
@@ -132,7 +116,6 @@
         bordered
         :fields="items"
       >
-        
         <template slot="actions" slot-scope="data">
           <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
             <i class="fas fa-pen-square" title="Editar o registro."></i> Editar
@@ -148,16 +131,9 @@
         </template>
 
         <template slot="isActive" slot-scope="data">
-            <div v-if="data.item.isActive">
-              Ativa para locação
-            </div>
-            <div v-else>
-              Inativa para locação
-            </div>
+          <div v-if="data.item.isActive">Ativa para locação</div>
+          <div v-else>Inativa para locação</div>
         </template>
-
-
-
       </b-table>
     </div>
 
@@ -213,7 +189,7 @@ export default {
       pageOptions: [5, 10, 15],
       options: [],
       items: [
-         {
+        {
           key: "name",
           label: "Sala:",
           sortable: true,

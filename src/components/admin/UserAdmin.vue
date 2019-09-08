@@ -163,17 +163,8 @@
       <b-row>
         <b-col md="4">
           <div style="text-align:left">
-            <b-button
-              class="mb-2 mr-2"
-              variant="outline-secondary"
-              size="sm"
-              v-b-modal="'mymodal'"
-              @click="firstForm"
-            >
-              <i class="fas fa-plus"></i> Adicionar
-            </b-button>
-            <b-button class="mb-2 mr-2" variant="outline-secondary" size="sm" v-b-modal="'mymodal'">
-              <i class="fas fa-search"></i> Pesquisar
+            <b-button class="mb-2 mr-2" variant="link" v-b-modal="'mymodal'" @click="firstForm">
+              <i class="fas fa-plus"></i> Incluir Usuário
             </b-button>
           </div>
         </b-col>
@@ -198,8 +189,6 @@
         small
         :fields="items"
       >
-       
-
         <template slot="tenantDetails" slot-scope="row">
           <div
             v-for="(item, index) in row.item.tenantDetails"
@@ -207,7 +196,6 @@
             :index="index"
           >{{row.item.tenantDetails[index].alias}}</div>
         </template>
-
 
         <template slot="actions" slot-scope="data">
           <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
@@ -286,7 +274,7 @@ export default {
           thClass: "table-th",
           tdClass: "table-td"
         },
-        
+
         {
           key: "actions",
           label: "",
@@ -311,7 +299,6 @@ export default {
           this.loadRooms(this.tenants[0]._id);
           this.user.tenant = this.tenants[0]._id;
         }
-
       });
     },
     loadRooms(tenant) {

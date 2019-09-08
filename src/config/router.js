@@ -1,10 +1,13 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import Home from "@/components/home/Home";
+import Home from "@/components/pages/Home";
+import Rents from "@/components/pages/Rents";
+
 import TenantAdmin from "@/components/admin/TenantAdmin";
 import UserAdmin from "@/components/admin/UserAdmin";
 import RoomAdmin from "@/components/admin/RoomAdmin";
+import BalanceAdmin from "@/components/admin/BalanceAdmin";
 
 
 import Auth from "@/components/auth/Auth";
@@ -18,6 +21,11 @@ const routes = [
     path: "/",
     component: Home
   },
+  {
+    name: "rents",
+    path: "/rents",
+    component: Rents
+    },
   { name: "auth", path: "/auth/:email?", component: Auth },
   { name: "profile", path: "/admin/users/profile", component: Profile },
   {
@@ -34,8 +42,14 @@ const routes = [
   },
   {
     name: "RoomAdmin",
-    path: "/admin/Rooms",
+    path: "/admin/rooms",
     component: RoomAdmin,
+    meta: { requiresAdmin: true }
+  },
+  {
+    name: "BalanceAdmin",
+    path: "/admin/balances",
+    component: BalanceAdmin,
     meta: { requiresAdmin: true }
   },
  

@@ -2,17 +2,46 @@
   <div class="home">
     <PageTitle main="home" />
 
+    <b-modal
+      v-bind:hide-footer="true"
+      id="mymodalconfirm"
+      v-model="modalConfirm"
+      title="Confirma a Reserva?"
+    >
+      <b-row>
+        <b-col>
+          Sala:
+          <strong>{{ rent.roomName }}</strong>
+          <br />Data:
+          <strong>{{ rent.date | moment("DD/MM/YYYY") }}</strong>
+          <br />Hora:
+          <strong>{{ rent.hour }}h</strong>
+          <br />Valor:
+          <input
+            type="text"
+            readonly
+            style="background: transparent; border: none; width: 85px"
+            v-money="money"
+            v-model="valueBR"
+          />
+        </b-col>
+        <b-col class="box-ico">
+          <i class="far fa-calendar-check fa-5x" aria-hidden="true"></i>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <hr />Ao clicar no botão de confirmação abaixo você efetivará essa reserva. O valor selecionado será debitado de seu saldo.
+          <br />Após confirmar, o cancelamento será possível em até duas horas antes da hora reservada.
+        </b-col>
+      </b-row>
 
-    <b-modal v-bind:hide-footer="true" id="mymodalconfirm" v-model="modalConfirm" title="Confirma a Reserva?">
-      Ao clicar no botão de confirmação abaixo, você efetivará a reserva e o valor selecionado será debitado de seu saldo.<br />
-      Essa reserva poderá ser cancelada em até duas horas antes da hora reservada.  
-
-      <hr>
-      <b-button class="mr-2" @click="save" variant="danger">OK, reservar agora!</b-button>
-      <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
-    
+      <hr />
+      <div class="text-center">
+        <b-button class="mr-2" @click="save" variant="danger">OK, reservar agora!</b-button>
+        <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
+      </div>
     </b-modal>
-   
 
     <b-modal v-bind:hide-footer="true" id="mymodal" v-model="modalShow" title="Reserva de Sala">
       <!-- INICIO FORMULÁRIO DE CADASTRO -->
@@ -23,9 +52,9 @@
               Reservando a sala
               <strong>{{ rent.roomName }}</strong>,
               <br />para
-              <strong>{{ rent.date | moment("L") }}</strong>,
+              <strong>{{ rent.date | moment("DD/MM/YYYY") }}</strong>,
               às
-              <strong>{{ rent.date | moment("HH:mm") }}h</strong>,
+              <strong>{{ rent.hour }}h</strong>,
               <br />ao valor de
               <strong>
                 <input
@@ -40,7 +69,7 @@
             </div>
             <div>
               <b-form-group
-                label="Paciente:"
+                label="Paciente (opcional):"
                 label-for="rentPatient"
                 description="Esta informação só será visível para você."
               >
@@ -52,7 +81,7 @@
                 ></b-form-input>
               </b-form-group>
               <b-form-group
-                label="Observações:"
+                label="Observações (opcional):"
                 label-for="rentObs"
                 description="Esta informação só será visível para você."
               >
@@ -63,9 +92,9 @@
         </b-row>
 
         <div class="text-right">
-          <b-button  v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
-            <i class="fa fa-send fa-lg"></i>
-            Inserir
+          <b-button v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
+            <i class="fa fa-check fa-lg"></i>
+            Prosseguir
           </b-button>
           <b-button class="btn-main ml-2" v-if="mode === 'edit'">
             <i class="fas fa-save fa-lg"></i>
@@ -82,13 +111,17 @@
     </b-modal>
 
     <div style="text-align:center">
-      <div class="mb-2">Data desejada:</div>
-      <datetime v-model="selectedDate" placeholder="busque a data aqui..."></datetime>
+      <div class="mb-2">
+        <i class="fas fa-calendar-plus"></i> Informe abaixo a data desejada:
+      </div>
+      <b-input class="inputDate" id="date" type="date" v-model="rent.date" @change="setDate()"></b-input>
       <hr />
     </div>
 
     <div v-if="rent.date" style="text-align:center">
-      <div class="mb-2">Selecione uma sala:</div>
+      <div class="mb-2">
+        <i class="far fa-building"></i> Escolha uma sala:
+      </div>
       <b-button
         :variant="getVariant(item._id)"
         class="mr-1"
@@ -117,7 +150,7 @@
             </div>
           </div>
           <div v-else>
-            <div style="color:green">
+            <div style="color:black">
               <strong>{{ row.item.hour }}</strong>
               <br />(disponível)
             </div>
@@ -131,8 +164,7 @@
             <b-button
               v-if="row.item.isActive"
               v-b-modal="'mymodal'"
-              size="sm"
-              variant="success"
+              variant="danger"
               @click="reserv(row.item.value, row.item.hour)"
             >Reservar a {{ row.item.value }}</b-button>
 
@@ -164,7 +196,6 @@ export default {
         precision: 2,
         masked: false
       },
-      selectedDate: null,
       mode: null,
       rent: {
         date: null,
@@ -183,11 +214,6 @@ export default {
       items: []
     };
   },
-  watch: {
-    selectedDate: function(val) {
-      this.setDate(val.toString().replace("T00:00:00.000Z", ""));
-    }
-  },
   methods: {
     loadRooms() {
       const url = `${baseApiUrl}/rooms`;
@@ -201,9 +227,7 @@ export default {
         this.users = res.data;
       });
     },
-    setDate(selectedDate) {
-      this.selectedDate = selectedDate;
-      this.rent.date = this.selectedDate;
+    setDate() {
       this.schedule = null;
       this.rent.room = null;
     },
@@ -211,10 +235,9 @@ export default {
       this.selectedRoom = room;
       this.rent.room = room._id;
       this.rent.roomName = room.name;
-      const url = `${baseApiUrl}/rents?room=${room._id}&date=${this.selectedDate}`;
+      const url = `${baseApiUrl}/rents?room=${room._id}&date=${this.rent.date}`;
       axios.get(url).then(res => {
         this.rents = res.data;
-
         this.items = [
           {
             key: "hour",
@@ -241,7 +264,7 @@ export default {
       let reserved = false;
       if (this.rents) {
         this.rents.map(r => {
-          let hourMap = this.$moment(r.date).format("HH:mm");
+          let hourMap = r.hour;
           if (hourMap.toString() === hourReserved.toString()) {
             reserved = true;
           }
@@ -268,10 +291,11 @@ export default {
       this.rent.patient = null;
       this.rent.obs = null;
       this.rent.value = this.formatCurrencyFromRealToMongoNumber(value);
-      this.rent.date = this.selectedDate + " " + hour;
+      this.rent.hour = hour;
       this.valueBR = this.rent.value;
     },
     save() {
+      this.rent.roomName = this.selectedRoom.name;
       axios
         .post(`${baseApiUrl}/rents`, this.rent)
         .then(() => {
@@ -291,9 +315,9 @@ export default {
     },
     getVariant(selectedRoom) {
       if (selectedRoom === this.rent.room) {
-        return "primary";
+        return "danger";
       } else {
-        return "light";
+        return "outline-danger";
       }
     }
   },
@@ -302,6 +326,9 @@ export default {
   }
 };
 </script>
-
 <style>
+.inputDate {
+  background-color: white;
+  border-color: brown;
+}
 </style>

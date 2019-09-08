@@ -79,33 +79,25 @@
           <div style="text-align:left">
             <b-button
               class="mb-2 mr-2"
-              variant="outline-secondary"
+              variant="link"
               size="sm"
               v-b-modal="'mymodal'"
               @click="clearForm"
             >
-              <i class="fas fa-plus"></i> Adicionar
-            </b-button>
-            <b-button
-              class="mb-2 mr-2"
-              variant="outline-secondary"
-              size="sm"
-              v-b-modal="'mymodal'"
-              @click="clearForm"
-            >
-              <i class="fas fa-search"></i> Pesquisar
+              <i class="fas fa-plus"></i> Incluir Inqulino
             </b-button>
           </div>
         </b-col>
-       <b-col md="4">
-         <div class="titulo">
-          Cadastro de Inquilinos
-          </div>
+        <b-col md="4">
+          <div class="titulo">Cadastro de Inquilinos</div>
         </b-col>
         <b-col md="4"></b-col>
       </b-row>
 
-      <div class="layer-total"><i class="fas fa-building mr-2"></i>{{ totalRows }} registro(s)</div>
+      <div class="layer-total">
+        <i class="fas fa-building mr-2"></i>
+        {{ totalRows }} registro(s)
+      </div>
 
       <b-table
         id="my-table"
@@ -120,18 +112,18 @@
         :fields="items"
         @filtered="onFiltered"
       >
-
-      <template
+        <template
           slot="created_at"
           slot-scope="row"
         >{{ row.item.created_at | moment("DD/MM/YYYY hh:mm") }}</template>
 
         <template slot="actions" slot-scope="data">
-          <b-button v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
+          <b-button size="sm" v-b-modal="'mymodal'" @click="loadResource(data.item, 'edit')">
             <i class="fas fa-pen-square" title="Editar o registro."></i>
           </b-button>
 
           <b-button
+            size="sm"
             v-b-modal="'mymodal'"
             variant="danger"
             class="ml-1"
