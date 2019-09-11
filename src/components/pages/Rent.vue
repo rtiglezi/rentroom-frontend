@@ -1,7 +1,8 @@
 <template>
-  <div class="home">
-    <PageTitle main="home" />
+  <div class="rent">
+    <PageTitle main="rent" />
 
+    
     <b-modal
       v-bind:hide-footer="true"
       id="mymodalconfirm"
@@ -92,7 +93,7 @@
         </b-row>
 
         <div class="text-right">
-          <b-button class="btn-main ml-2" v-if="mode === 'save'" @click="save">
+          <b-button v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
             <i class="fa fa-check fa-lg"></i>
             Prosseguir
           </b-button>
@@ -112,6 +113,14 @@
 
     <div style="text-align:center">
       <div class="mb-2">
+        <i class="fas fa-calendar-plus"></i> Informe abaixo a data desejada:
+      </div>
+      <b-input class="inputDate" id="date" type="date" v-model="rent.date" @change="setDate()"></b-input>
+      <hr />
+    </div>
+
+    <div v-if="rent.date" style="text-align:center">
+      <div class="mb-2">
         <i class="far fa-building"></i> Escolha uma sala:
       </div>
       <b-button
@@ -122,49 +131,48 @@
         @click="setRoom(item)"
       >{{ item.name }}</b-button>
       <hr />
-
-      <b-button @click="previousWeek()" variant="link"><i class="fas fa-arrow-left"></i> semana anterior</b-button>
-      <b-button @click="nextWeek()" variant="link">próxima semana <i class="fas fa-arrow-right"></i></b-button>
-
-      <table width="100%" border="1">
-        <tr style="font-weight: bold; background-color:#aaa; color: white">
-          <td>Hora</td>
-          <td v-for="itemCol in daysOnWeek" :key="itemCol">
-            <div v-if="isItToday(itemCol)" style="color:brown; background-color: yellow">
-              {{ getWeekDayName(itemCol) }}
-              <br />
-              {{ itemCol | moment("DD") }}
+    </div>
+    <div>
+      <b-table
+        class="mt-3"
+        v-if="schedule"
+        id="my-table"
+        :items="schedule"
+        small
+        responsive
+        bordered
+        :fields="items"
+      >
+        <template slot="hour" slot-scope="row">
+          <div v-if="getStatus(row.item.hour) || !row.item.isActive ">
+            <div style="color:#bbb">
+              <strong>{{ row.item.hour }}</strong>
+              <br />(indisponível)
             </div>
-            <div v-else>
-              {{ getWeekDayName(itemCol) }}
-              <br />
-              {{ itemCol | moment("DD") }}
+          </div>
+          <div v-else>
+            <div style="color:black">
+              <strong>{{ row.item.hour }}</strong>
+              <br />(disponível)
             </div>
-          </td>
-        </tr>
-        <tr v-for="itemRow in schedule" :key="itemRow.hour">
-          <td style="background-color: #ccc">{{ itemRow.hour.substring(0,2) }}h</td>
-          <td v-for="itemCol in daysOnWeek" :key="itemCol" class="p-1">
-            <i
-              v-if="getStatus(itemRow.hour, itemCol)"
-              class="fa fa-calendar-check fa-2x"
-              style="color:#ccc"
-            ></i>
-            <i
-              v-else
-              @click="reserv(itemRow.value, itemRow.hour, itemCol)"
+          </div>
+        </template>
+        <template slot="actions" slot-scope="row">
+          <div v-if="getStatus(row.item.hour)">
+            <span style="color:grey; font-size:.9em; font-weight: bold">Reservado</span>
+          </div>
+          <div v-else>
+            <b-button
+              v-if="row.item.isActive"
               v-b-modal="'mymodal'"
-              class="fa fa-calendar-check fa-2x"
-              style="color:red"
-            ></i>
-            <br />
-            <div style="font-size: .7em">
-              {{ getWeekDayName(itemCol) }} <br>
-              {{ itemCol | moment("DD") }}/{{ itemCol | moment("MM")}}
-            </div>
-          </td>
-        </tr>
-      </table>
+              variant="danger"
+              @click="reserv(row.item.value, row.item.hour)"
+            >Reservar a {{ row.item.value }}</b-button>
+
+            <span v-else style="color:grey; font-size: .9em">Desativado pelo locatário</span>
+          </div>
+        </template>
+      </b-table>
     </div>
   </div>
 </template>
@@ -174,13 +182,12 @@ import PageTitle from "../template/PageTitle";
 import { baseApiUrl } from "@/global";
 import axios from "axios";
 
+
 export default {
-  name: "Home",
+  name: "Rent",
   components: { PageTitle },
   data: function() {
     return {
-      today: new Date(),
-      daysOnWeek: [],
       valueBR: null,
       selectedRoom: null,
       money: {
@@ -227,18 +234,40 @@ export default {
       this.rent.room = null;
     },
     setRoom(room) {
-      this.daysOnWeek = [];
       this.selectedRoom = room;
       this.rent.room = room._id;
       this.rent.roomName = room.name;
-      this.getWeek(room);
+      const url = `${baseApiUrl}/rents?room=${room._id}&date=${this.rent.date}`;
+      axios.get(url).then(res => {
+        this.rents = res.data;
+        this.items = [
+          {
+            key: "hour",
+            label: "Horário",
+            class: "text-center",
+            sortable: false,
+            thClass: "table-th",
+            tdClass: "table-td"
+          },
+          {
+            key: "actions",
+            label: "Reserva",
+            class: "text-center",
+            sortable: false,
+            thClass: "table-th",
+            tdClass: "table-td"
+          }
+        ];
+
+        this.schedule = room.schedule;
+      });
     },
-    getStatus(hourReserved, day) {
+    getStatus(hourReserved) {
       let reserved = false;
       if (this.rents) {
         this.rents.map(r => {
           let hourMap = r.hour;
-          if (hourMap.toString() === hourReserved.toString() && day == r.date) {
+          if (hourMap.toString() === hourReserved.toString()) {
             reserved = true;
           }
         });
@@ -259,12 +288,11 @@ export default {
         .replace("*", ".");
       return val;
     },
-    reserv(value, hour, date) {
+    reserv(value, hour) {
       this.mode = "save";
       this.rent.patient = null;
       this.rent.obs = null;
       this.rent.value = this.formatCurrencyFromRealToMongoNumber(value);
-      this.rent.date = date;
       this.rent.hour = hour;
       this.valueBR = this.rent.value;
     },
@@ -276,8 +304,8 @@ export default {
           this.$toasted.global.defaultSuccess({
             msg: `Reserva efetuada com sucesso.`
           });
-          this.setRoom(this.selectedRoom);
           this.refresh();
+          this.setRoom(this.selectedRoom);
         })
         .catch();
     },
@@ -293,105 +321,10 @@ export default {
       } else {
         return "outline-danger";
       }
-    },
-    getWeek(room) {
-      let today = this.today;
-
-      let weekDay = today.getDay();
-
-      let initialDate = null;
-      let finalDate = null;
-
-      if (weekDay == 0) {
-        initialDate = today;
-      } else if (weekDay == 1) {
-        initialDate = today.setDate(today.getDate() - 1);
-      } else if (weekDay == 2) {
-        initialDate = today.setDate(today.getDate() - 2);
-      } else if (weekDay == 3) {
-        initialDate = today.setDate(today.getDate() - 3);
-      } else if (weekDay == 4) {
-        initialDate = today.setDate(today.getDate() - 4);
-      } else if (weekDay == 5) {
-        initialDate = today.setDate(today.getDate() - 5);
-      } else if (weekDay == 6) {
-        initialDate = today.setDate(today.getDate() - 6);
-      }
-
-      finalDate = new Date(initialDate);
-      finalDate = finalDate.setDate(finalDate.getDate() + 6);
-
-      let dt = new Date(initialDate);
-
-      for (let x = 1; x < 8; x++) {
-        this.daysOnWeek.push(this.$moment(dt).format("YYYY-MM-DD"));
-        dt = new Date(dt.setDate(dt.getDate() + 1));
-      }
-
-      initialDate = this.$moment(new Date(initialDate)).format("YYYY-MM-DD");
-      finalDate = this.$moment(new Date(finalDate)).format("YYYY-MM-DD");
-
-      const url = `${baseApiUrl}/rents?room=${room._id}&dates=${this.daysOnWeek}`;
-
-      axios.get(url).then(res => {
-        this.rents = res.data;
-        this.schedule = room.schedule;
-      });
-    },
-    getWeekDayName(val) {
-      val = val;
-      let weekDayName = "";
-      let n = this.$moment(val).format("E");
-      if (n == 7) {
-        weekDayName = "Dom";
-      }
-      if (n == 1) {
-        weekDayName = "Seg";
-      }
-      if (n == 2) {
-        weekDayName = "Ter";
-      }
-      if (n == 3) {
-        weekDayName = "Qua";
-      }
-      if (n == 4) {
-        weekDayName = "Qui";
-      }
-      if (n == 5) {
-        weekDayName = "Sex";
-      }
-      if (n == 6) {
-        weekDayName = "Sáb";
-      }
-      return weekDayName;
-    },
-    previousWeek() {
-      this.today = this.today.setDate(this.today.getDate() - 7);
-      this.today = new Date(this.today);
-      this.setRoom(this.selectedRoom);
-      this.refresh();
-    },
-    nextWeek() {
-      this.today = this.today.setDate(this.today.getDate() + 7);
-      this.today = new Date(this.today);
-      this.setRoom(this.selectedRoom);
-      this.refresh();
-    },
-    isItToday(dt) {
-      let today = new Date();
-      if (
-        dt.toString() ===
-        this.$moment(today)
-          .format("YYYY-MM-DD")
-          .toString()
-      ) {
-        return true;
-      }
     }
   },
   mounted() {
     this.refresh();
-    this.getWeek();
   }
 };
 </script>

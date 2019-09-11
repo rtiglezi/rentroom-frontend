@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Home from "@/components/pages/Home";
+import Rent from "@/components/pages/Rent";
 import Rents from "@/components/pages/Rents";
 
 import TenantAdmin from "@/components/admin/TenantAdmin";
@@ -20,6 +21,11 @@ const routes = [
     name: "home",
     path: "/",
     component: Home
+  },
+  {
+    name: "rent",
+    path: "/rent",
+    component: Rent
   },
   {
     name: "rents",

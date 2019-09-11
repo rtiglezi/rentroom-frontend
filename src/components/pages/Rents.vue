@@ -43,7 +43,7 @@
       </div>
     </b-modal>
 
-    <div class="text-center" v-if="totalRows > 0">Total de agendamentos até agora: {{ totalRows }}</div>
+    <div class="text-center" v-if="totalRows > 0">Total de reservas até agora: {{ totalRows }}</div>
     <div class="text-center" v-else>
       Você não tem nenhuma reserva.
       <br />
@@ -77,9 +77,9 @@
             <b-button
               @click="chooseRent(rent)"
               v-b-modal="'mymodalconfirm'"
-              variant="link"
+              variant="outline-danger"
               class="mt-1 mb-1 mr-1"
-            >Cancelar este agendamento</b-button>
+            >Cancelar esta reserva</b-button>
           </div>
         </b-col>
       </b-row>
@@ -153,8 +153,8 @@ export default {
 <style>
 .rentBox {
   border-radius: 5px;
-  background-color: green;
-  color: white;
+  background-color: lightgray;
+  color: #333;
   padding: 3px 10px 3px 10px;
   margin-bottom: 10px;
 }

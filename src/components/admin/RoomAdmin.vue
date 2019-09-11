@@ -304,7 +304,7 @@ export default {
         }
         this.schedule.push({
           hour,
-          value: 0,
+          value: 2500.00,
           isActive: true
         });
       }

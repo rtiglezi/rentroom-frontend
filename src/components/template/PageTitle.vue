@@ -1,7 +1,7 @@
 <template>
   <div class="header pb-2 mb-2">
     <b-navbar fixed toggleable="lg" type="dark" class="header-nav" v-if="user">
-      <b-navbar-brand href="#" class="header-title"><i class="fa fa-door-open"></i> Locando</b-navbar-brand>
+      <b-navbar-brand href="#" class="header-title"><i class="fa fa-door-open fa-lg"></i> Salafácil</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -60,7 +60,7 @@
     <div class="text-center">
       <b-button size="sm" class="mt-2 mr-1" variant="danger" @click="navigate('/')">
       <i class="fa fa-calendar-plus fa-2x"></i><br>Reservar agora</b-button>
-      <b-button size="sm" class="mt-2 mr-1" variant="success" @click="navigate('/rents')">
+      <b-button size="sm" class="mt-2 mr-1" variant="dark" @click="navigate('/rents')">
       <i class="fa fa-calendar fa-2x"></i><br>Minhas Reservas</b-button>
       <b-button size="sm" class="mt-2 mr-1" variant="info">
       <i class="fa fa-wallet fa-2x"></i><br>Meu Saldo

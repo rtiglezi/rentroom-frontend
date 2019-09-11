@@ -2,7 +2,9 @@
   <div class="auth-content" v-on:keyup.enter="submitByKey">
     <div>
       <div class="text-center">
-        <span class="auth-logo">RentRoom</span>
+        <span class="auth-logo">
+          <i class="fa fa-door-open fa-lg"></i> Salafácil
+          </span>
       </div>
 
       <hr />
@@ -25,7 +27,7 @@
 
         <b-button variant="dark" @click="signin" class="mb-3">Entrar</b-button>
         <div>
-          <a href="#" @click="forgotPass = true">Esqueci a senha</a>
+          <a class="forgot" href="#" @click="forgotPass = true">Esqueci a senha</a>
         </div>
       </div>
 
@@ -140,13 +142,15 @@ export default {
   width: 100%;
 }
 
-
-
 .lblErr {
   color: red;
 }
 
 .lblSuccess {
   color: green;
+}
+
+.forgot {
+  color: white;
 }
 </style>
