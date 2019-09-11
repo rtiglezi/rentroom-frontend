@@ -38,7 +38,7 @@
 
       <hr />
       <div class="text-center">
-        <b-button class="mr-2" @click="save" variant="danger">OK, reservar agora!</b-button>
+        <b-button class="mr-2" variant="danger" @click="save">OK, reservar agora!</b-button>
         <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
       </div>
     </b-modal>
@@ -92,7 +92,7 @@
         </b-row>
 
         <div class="text-right">
-          <b-button class="btn-main ml-2" v-if="mode === 'save'" @click="save">
+          <b-button v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
             <i class="fa fa-check fa-lg"></i>
             Prosseguir
           </b-button>
@@ -123,48 +123,73 @@
       >{{ item.name }}</b-button>
       <hr />
 
-      <b-button @click="previousWeek()" variant="link"><i class="fas fa-arrow-left"></i> semana anterior</b-button>
-      <b-button @click="nextWeek()" variant="link">próxima semana <i class="fas fa-arrow-right"></i></b-button>
+      <div v-if="rentEnabled">
+        <b-button @click="previousWeek()" variant="link">
+          <i class="fas fa-arrow-left"></i> semana anterior
+        </b-button>
+        <b-button @click="nextWeek()" variant="link">
+          próxima semana
+          <i class="fas fa-arrow-right"></i>
+        </b-button>
+      </div>
 
-      <table width="100%" border="1">
-        <tr style="font-weight: bold; background-color:#aaa; color: white">
-          <td>Hora</td>
-          <td v-for="itemCol in daysOnWeek" :key="itemCol">
-            <div v-if="isItToday(itemCol)" style="color:brown; background-color: yellow">
-              {{ getWeekDayName(itemCol) }}
-              <br />
-              {{ itemCol | moment("DD") }}
-            </div>
-            <div v-else>
-              {{ getWeekDayName(itemCol) }}
-              <br />
-              {{ itemCol | moment("DD") }}
-            </div>
-          </td>
-        </tr>
-        <tr v-for="itemRow in schedule" :key="itemRow.hour">
-          <td style="background-color: #ccc">{{ itemRow.hour.substring(0,2) }}h</td>
-          <td v-for="itemCol in daysOnWeek" :key="itemCol" class="p-1">
-            <i
-              v-if="getStatus(itemRow.hour, itemCol)"
-              class="fa fa-calendar-check fa-2x"
-              style="color:#ccc"
-            ></i>
-            <i
-              v-else
-              @click="reserv(itemRow.value, itemRow.hour, itemCol)"
-              v-b-modal="'mymodal'"
-              class="fa fa-calendar-check fa-2x"
-              style="color:red"
-            ></i>
-            <br />
-            <div style="font-size: .7em">
-              {{ getWeekDayName(itemCol) }} <br>
-              {{ itemCol | moment("DD") }}/{{ itemCol | moment("MM")}}
-            </div>
-          </td>
-        </tr>
-      </table>
+      <div class="container">
+        <div v-if="rentEnabled" class="tabContainer" id="lista">
+          <table>
+            <thead>
+              <tr style="font-weight: bold; background-color:#aaa; color: white">
+                <td>Hor</td>
+                <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
+                  <div v-if="isItToday(itemCol)" style="color:white; background-color: black">
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                  </div>
+                  <div v-else>
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                  </div>
+                </td>
+              </tr>
+            </thead>
+          </table>
+
+          <div class="scrollContainer">
+            <table border="0">
+              <tbody>
+                <tr v-for="itemRow in schedule" :key="itemRow.hour">
+                  <td
+                    class="tabela-coluna0"
+                    style="background-color: #ccc"
+                  >{{ itemRow.hour.substring(0,2) }}h</td>
+                  <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
+                    <i
+                      v-if="getStatus(itemRow.hour, itemCol)"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:#F9D5D5;"
+                    ></i>
+                    <i
+                      v-else-if="!itemRow.isActive"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:#ddd"
+                    ></i>
+                    <i
+                      v-else
+                      @click="reserv(itemRow.value, itemRow.hour, itemCol)"
+                      v-b-modal="'mymodal'"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:red; cursor:pointer"
+                    ></i>
+                    <br />
+                    <div style="font-size: .7em">{{ itemRow.value }}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -179,6 +204,7 @@ export default {
   components: { PageTitle },
   data: function() {
     return {
+      rentEnabled: false,
       today: new Date(),
       daysOnWeek: [],
       valueBR: null,
@@ -336,6 +362,7 @@ export default {
       axios.get(url).then(res => {
         this.rents = res.data;
         this.schedule = room.schedule;
+        this.rentEnabled = true;
       });
     },
     getWeekDayName(val) {
@@ -343,25 +370,25 @@ export default {
       let weekDayName = "";
       let n = this.$moment(val).format("E");
       if (n == 7) {
-        weekDayName = "Dom";
+        weekDayName = "D";
       }
       if (n == 1) {
-        weekDayName = "Seg";
+        weekDayName = "S";
       }
       if (n == 2) {
-        weekDayName = "Ter";
+        weekDayName = "T";
       }
       if (n == 3) {
-        weekDayName = "Qua";
+        weekDayName = "Q";
       }
       if (n == 4) {
-        weekDayName = "Qui";
+        weekDayName = "Q";
       }
       if (n == 5) {
-        weekDayName = "Sex";
+        weekDayName = "S";
       }
       if (n == 6) {
-        weekDayName = "Sáb";
+        weekDayName = "S";
       }
       return weekDayName;
     },
@@ -399,5 +426,68 @@ export default {
 .inputDate {
   background-color: white;
   border-color: brown;
+}
+
+table {
+  margin: 0px;
+}
+
+table,
+th,
+td {
+  border-collapse: collapse;
+}
+
+th {
+  border-top: 1px solid #000000;
+}
+
+th,
+td {
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
+  padding: 0px;
+}
+
+th span,
+td span {
+  display: block;
+  padding: 3px;
+}
+
+#lista table {
+  width: 330px;
+}
+
+#lista th {
+  color: #ffffff;
+  background-color: #e92345;
+  text-align: left;
+}
+
+#lista.tabContainer {
+  border: 1px solid #000000;
+  border-right: 1px;
+  border-top: 0px;
+}
+
+.container {
+  width: 90vw;
+  height: 350px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+#lista .scrollContainer {
+  width: 350px;
+  height: 250px;
+  overflow: auto;
+}
+
+#lista .tabela-coluna1 {
+  width: 90px;
+  padding-top: 2px;
 }
 </style>
