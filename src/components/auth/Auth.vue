@@ -9,7 +9,7 @@
 
       <hr />
 
-      <div v-if="!forgotPass" class="text-center">
+       <div v-if="!forgotPass" class="text-center">
         <div class="auth-title">Login</div>
 
         <b-form-group>
@@ -39,7 +39,7 @@
           <b-button variant="dark" @click="forgot" class="mb-3">{{ txtButton }}</b-button>
         </div>
         <div>
-          <a href="#" @click="forgotPass = false">Voltar ao login</a>
+          <a class="forgot" href="#" @click="forgotPass = false">Voltar ao login</a>
         </div>
       </div>
     </div>
@@ -116,13 +116,13 @@ export default {
 </script>
 
 <style>
+
 .auth-content {
   background-color: #C82333;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
   color: white;
+  padding: 25px;
 }
 
 .auth-logo {
@@ -135,19 +135,6 @@ export default {
   font-weight: 100;
   margin-top: 10px;
   margin-bottom: 15px;
-}
-
-.auth-modal input {
-  border: 1px solid #888;
-  width: 100%;
-}
-
-.lblErr {
-  color: red;
-}
-
-.lblSuccess {
-  color: green;
 }
 
 .forgot {

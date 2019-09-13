@@ -2,8 +2,13 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Home from "@/components/pages/Home";
-import Rent from "@/components/pages/Rent";
+import Admin from "@/components/pages/Admin";
+
 import Rents from "@/components/pages/Rents";
+
+
+import RentByDay from "@/components/pages/RentByDay";
+import RentByWeek from "@/components/pages/RentByWeek";
 
 import TenantAdmin from "@/components/admin/TenantAdmin";
 import UserAdmin from "@/components/admin/UserAdmin";
@@ -23,14 +28,24 @@ const routes = [
     component: Home
   },
   {
-    name: "rent",
-    path: "/rent",
-    component: Rent
+    name: "admin",
+    path: "/admin",
+    component: Admin
   },
   {
     name: "rents",
     path: "/rents",
     component: Rents
+  },
+  {
+    name: "rentbyday",
+    path: "/rentbyday",
+    component: RentByDay
+  },
+  {
+    name: "rentbyweek",
+    path: "/rentbyweek",
+    component: RentByWeek
     },
   { name: "auth", path: "/auth/:email?", component: Auth },
   { name: "profile", path: "/admin/users/profile", component: Profile },

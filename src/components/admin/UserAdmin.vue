@@ -1,6 +1,6 @@
 <template>
   <div class="tenant-admin">
-    <PageTitle main="users" />
+    <AdminTitle main="Usuários" />
 
     <b-modal
       size="lg"
@@ -185,6 +185,7 @@
         :per-page="perPage"
         :current-page="currentPage"
         responsive
+        bordered=""
         stacked
         small
         :fields="items"
@@ -234,11 +235,11 @@
 <script>
 import { baseApiUrl, showError, userKey } from "@/global";
 import axios from "axios";
-import PageTitle from "../template/PageTitle";
+import AdminTitle from "../template/AdminTitle";
 
 export default {
   name: "UserAdmin",
-  components: { PageTitle },
+  components: { AdminTitle },
   data: function() {
     return {
       profilesLoggedUser: [],

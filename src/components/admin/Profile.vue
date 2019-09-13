@@ -1,13 +1,31 @@
 <template>
   <div class="profile">
-    <PageTitle main="profile" />
+    <PageTitle main="Meu perfil" />
+
+    <b-modal
+      v-bind:hide-footer="true"
+      id="mymodalconfirm"
+      v-model="modalConfirm"
+      title="Confirma o logout?"
+    >
+      <b-row>
+        <b-col>Finalizar a sessão?</b-col>
+      </b-row>
+
+      <hr />
+      <div class="text-center">
+        <b-button class="mr-2" @click="logout" variant="danger">Sim</b-button>
+        <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
+      </div>
+    </b-modal>
+
     <b-row>
       <b-col>
         <b-card>
           <div>
             <div class="box">Perfil de Usuário</div>
           </div>
-          
+
           <div>
             <i class="fa fa-user mr-1"></i>
             {{ user.name }}
@@ -24,6 +42,10 @@
             <i class="fa fa-id-badge mr-1"></i>
             {{ user.profiles }}
           </div>
+          <hr>
+          <b-button v-b-modal="'mymodalconfirm'" variant="danger" class="ml-2">
+            <i class="fa fa-times-circle fa-lg"></i> Sair
+          </b-button>
         </b-card>
       </b-col>
 
@@ -55,7 +77,9 @@ import PageTitle from "../template/PageTitle";
 export default {
   name: "Profile",
   data: function() {
-    return {};
+    return {
+       modalConfirm: false
+    };
   },
   computed: mapState(["user"]),
   components: { PageTitle },
@@ -65,6 +89,14 @@ export default {
       localStorage.removeItem(userKey);
       this.$store.commit("setUser", null);
       this.$router.push(`/auth?email=${email}`);
+    },
+    logout() {
+      localStorage.removeItem(userKey);
+      this.$store.commit("setUser", null);
+      this.$router.push({ name: "auth" });
+    },
+    clickModalBtnConfirm() {
+      this.modalConfirm = false;
     }
   }
 };

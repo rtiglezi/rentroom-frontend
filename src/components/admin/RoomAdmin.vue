@@ -1,6 +1,6 @@
 <template>
   <div class="room-admin">
-    <PageTitle main="rooms" />
+    <AdminTitle main="Salas" />
     <b-modal
       size="lg"
       v-bind:hide-footer="true"
@@ -157,12 +157,12 @@
 <script>
 import { baseApiUrl, showError } from "@/global";
 import axios from "axios";
-import PageTitle from "../template/PageTitle";
+import AdminTitle from "../template/AdminTitle";
 import { Money } from "v-money";
 
 export default {
   name: "roomAdmin",
-  components: { PageTitle, Money },
+  components: { AdminTitle, Money },
   data: function() {
     return {
       money: {

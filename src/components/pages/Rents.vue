@@ -1,6 +1,6 @@
 <template>
   <div class="rents">
-    <PageTitle main="rents" />
+    <PageTitle main="Minhas reservas" />
 
     <b-modal
       v-bind:hide-footer="true"
@@ -38,7 +38,7 @@
 
       <hr />
       <div class="text-center">
-        <b-button class="mr-2" variant="warning" @click="cancel(rent)">OK, cancelar agora.</b-button>
+        <b-button class="mr-2" variant="danger" @click="cancel(rent)">OK, cancelar agora.</b-button>
         <b-button @click="clickModalBtnConfirm">Voltar</b-button>
       </div>
     </b-modal>
@@ -153,8 +153,8 @@ export default {
 <style>
 .rentBox {
   border-radius: 5px;
-  background-color: lightgray;
-  color: #333;
+  background-color: #1f9e3a;
+  color: white;
   padding: 3px 10px 3px 10px;
   margin-bottom: 10px;
 }

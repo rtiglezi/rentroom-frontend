@@ -1,8 +1,7 @@
 <template>
-  <div class="rent">
-    <PageTitle main="rent" />
+  <div class="rentByWeek">
+    <PageTitle main="Reserva de sala" />
 
-    
     <b-modal
       v-bind:hide-footer="true"
       id="mymodalconfirm"
@@ -39,7 +38,7 @@
 
       <hr />
       <div class="text-center">
-        <b-button class="mr-2" @click="save" variant="danger">OK, reservar agora!</b-button>
+        <b-button class="mr-2" variant="danger" @click="save">OK, reservar agora!</b-button>
         <b-button @click="clickModalBtnConfirm">Cancelar</b-button>
       </div>
     </b-modal>
@@ -113,14 +112,6 @@
 
     <div style="text-align:center">
       <div class="mb-2">
-        <i class="fas fa-calendar-plus"></i> Informe abaixo a data desejada:
-      </div>
-      <b-input class="inputDate" id="date" type="date" v-model="rent.date" @change="setDate()"></b-input>
-      <hr />
-    </div>
-
-    <div v-if="rent.date" style="text-align:center">
-      <div class="mb-2">
         <i class="far fa-building"></i> Escolha uma sala:
       </div>
       <b-button
@@ -130,49 +121,74 @@
         :key="item._id"
         @click="setRoom(item)"
       >{{ item.name }}</b-button>
-      <hr />
-    </div>
-    <div>
-      <b-table
-        class="mt-3"
-        v-if="schedule"
-        id="my-table"
-        :items="schedule"
-        small
-        responsive
-        bordered
-        :fields="items"
-      >
-        <template slot="hour" slot-scope="row">
-          <div v-if="getStatus(row.item.hour) || !row.item.isActive ">
-            <div style="color:#bbb">
-              <strong>{{ row.item.hour }}</strong>
-              <br />(indisponível)
-            </div>
-          </div>
-          <div v-else>
-            <div style="color:black">
-              <strong>{{ row.item.hour }}</strong>
-              <br />(disponível)
-            </div>
-          </div>
-        </template>
-        <template slot="actions" slot-scope="row">
-          <div v-if="getStatus(row.item.hour)">
-            <span style="color:grey; font-size:.9em; font-weight: bold">Reservado</span>
-          </div>
-          <div v-else>
-            <b-button
-              v-if="row.item.isActive"
-              v-b-modal="'mymodal'"
-              variant="danger"
-              @click="reserv(row.item.value, row.item.hour)"
-            >Reservar a {{ row.item.value }}</b-button>
+     
+      <div v-if="rentEnabled">
+        <b-button @click="previousWeek()" variant="link">
+          <i class="fas fa-arrow-left"></i> semana anterior
+        </b-button>
+        <b-button @click="nextWeek()" variant="link">
+          próxima semana
+          <i class="fas fa-arrow-right"></i>
+        </b-button>
+      </div>
 
-            <span v-else style="color:grey; font-size: .9em">Desativado pelo locatário</span>
+      <div class="container">
+        <div v-if="rentEnabled" class="tabContainer" id="lista">
+          <table>
+            <thead>
+              <tr style="font-weight: bold; background-color:crimson; color: white">
+                <td>Hor</td>
+                <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
+                  <div v-if="isItToday(itemCol)" style="color:white; background-color: black">
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                  </div>
+                  <div v-else>
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                  </div>
+                </td>
+              </tr>
+            </thead>
+          </table>
+
+          <div class="scrollContainer">
+            <table border="0">
+              <tbody>
+                <tr v-for="itemRow in schedule" :key="itemRow.hour">
+                  <td
+                    class="tabela-coluna0"
+                    style="background-color: #ccc"
+                  >{{ itemRow.hour.substring(0,2) }}h</td>
+                  <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
+                    <i
+                      v-if="getStatus(itemRow.hour, itemCol)"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:#F9D5D5;"
+                    ></i>
+                    <i
+                      v-else-if="!itemRow.isActive"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:#ddd"
+                    ></i>
+                    <i
+                      v-else
+                      @click="reserv(itemRow.value, itemRow.hour, itemCol)"
+                      v-b-modal="'mymodal'"
+                      class="fa fa-calendar-check fa-2x"
+                      style="color:red; cursor:pointer"
+                    ></i>
+                    <br />
+                    <div style="font-size: .7em">{{ itemRow.value }}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </template>
-      </b-table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -182,12 +198,14 @@ import PageTitle from "../template/PageTitle";
 import { baseApiUrl } from "@/global";
 import axios from "axios";
 
-
 export default {
-  name: "Rent",
+  name: "RentByWeek",
   components: { PageTitle },
   data: function() {
     return {
+      rentEnabled: false,
+      today: new Date(),
+      daysOnWeek: [],
       valueBR: null,
       selectedRoom: null,
       money: {
@@ -234,40 +252,18 @@ export default {
       this.rent.room = null;
     },
     setRoom(room) {
+      this.daysOnWeek = [];
       this.selectedRoom = room;
       this.rent.room = room._id;
       this.rent.roomName = room.name;
-      const url = `${baseApiUrl}/rents?room=${room._id}&date=${this.rent.date}`;
-      axios.get(url).then(res => {
-        this.rents = res.data;
-        this.items = [
-          {
-            key: "hour",
-            label: "Horário",
-            class: "text-center",
-            sortable: false,
-            thClass: "table-th",
-            tdClass: "table-td"
-          },
-          {
-            key: "actions",
-            label: "Reserva",
-            class: "text-center",
-            sortable: false,
-            thClass: "table-th",
-            tdClass: "table-td"
-          }
-        ];
-
-        this.schedule = room.schedule;
-      });
+      this.getWeek(room);
     },
-    getStatus(hourReserved) {
+    getStatus(hourReserved, day) {
       let reserved = false;
       if (this.rents) {
         this.rents.map(r => {
           let hourMap = r.hour;
-          if (hourMap.toString() === hourReserved.toString()) {
+          if (hourMap.toString() === hourReserved.toString() && day == r.date) {
             reserved = true;
           }
         });
@@ -288,11 +284,12 @@ export default {
         .replace("*", ".");
       return val;
     },
-    reserv(value, hour) {
+    reserv(value, hour, date) {
       this.mode = "save";
       this.rent.patient = null;
       this.rent.obs = null;
       this.rent.value = this.formatCurrencyFromRealToMongoNumber(value);
+      this.rent.date = date;
       this.rent.hour = hour;
       this.valueBR = this.rent.value;
     },
@@ -304,8 +301,8 @@ export default {
           this.$toasted.global.defaultSuccess({
             msg: `Reserva efetuada com sucesso.`
           });
-          this.refresh();
           this.setRoom(this.selectedRoom);
+          this.refresh();
         })
         .catch();
     },
@@ -321,10 +318,105 @@ export default {
       } else {
         return "outline-danger";
       }
+    },
+    getWeek(room) {
+      let today = this.today;
+
+      let weekDay = today.getDay();
+
+      let initialDate = null;
+
+      if (weekDay == 0) {
+        initialDate = today;
+      } else if (weekDay == 1) {
+        initialDate = today.setDate(today.getDate() - 1);
+      } else if (weekDay == 2) {
+        initialDate = today.setDate(today.getDate() - 2);
+      } else if (weekDay == 3) {
+        initialDate = today.setDate(today.getDate() - 3);
+      } else if (weekDay == 4) {
+        initialDate = today.setDate(today.getDate() - 4);
+      } else if (weekDay == 5) {
+        initialDate = today.setDate(today.getDate() - 5);
+      } else if (weekDay == 6) {
+        initialDate = today.setDate(today.getDate() - 6);
+      }
+
+      let finalDate = new Date(initialDate).setDate(
+        new Date(initialDate).getDate() + 6
+      );
+
+      let dt = new Date(initialDate);
+
+      for (let x = 1; x < 8; x++) {
+        this.daysOnWeek.push(this.$moment(dt).format("YYYY-MM-DD"));
+        dt = new Date(dt.setDate(dt.getDate() + 1));
+      }
+
+      initialDate = this.$moment(new Date(initialDate)).format("YYYY-MM-DD");
+      finalDate = this.$moment(new Date(finalDate)).format("YYYY-MM-DD");
+
+      const url = `${baseApiUrl}/rents?room=${room._id}&dates=${this.daysOnWeek}`;
+
+      axios.get(url).then(res => {
+        this.rents = res.data;
+        this.schedule = room.schedule;
+        this.rentEnabled = true;
+      });
+    },
+    getWeekDayName(val) {
+      let weekDayName = "";
+      let n = this.$moment(val).format("E");
+      if (n == 7) {
+        weekDayName = "D";
+      }
+      if (n == 1) {
+        weekDayName = "S";
+      }
+      if (n == 2) {
+        weekDayName = "T";
+      }
+      if (n == 3) {
+        weekDayName = "Q";
+      }
+      if (n == 4) {
+        weekDayName = "Q";
+      }
+      if (n == 5) {
+        weekDayName = "S";
+      }
+      if (n == 6) {
+        weekDayName = "S";
+      }
+      return weekDayName;
+    },
+    previousWeek() {
+      this.today = this.today.setDate(this.today.getDate() - 7);
+      this.today = new Date(this.today);
+      this.setRoom(this.selectedRoom);
+      this.refresh();
+    },
+    nextWeek() {
+      this.today = this.today.setDate(this.today.getDate() + 7);
+      this.today = new Date(this.today);
+      this.setRoom(this.selectedRoom);
+      this.refresh();
+    },
+    isItToday(dt) {
+      let today = new Date();
+      if (
+        dt.toString() ===
+        this.$moment(today)
+          .format("YYYY-MM-DD")
+          .toString()
+      ) {
+        return true;
+      }
     }
   },
   mounted() {
     this.refresh();
+    this.getWeek();
   }
 };
 </script>
@@ -332,5 +424,68 @@ export default {
 .inputDate {
   background-color: white;
   border-color: brown;
+}
+
+table {
+  margin: 0px;
+}
+
+table,
+th,
+td {
+  border-collapse: collapse;
+}
+
+th {
+  border-top: 1px solid #000000;
+}
+
+th,
+td {
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
+  padding: 0px;
+}
+
+th span,
+td span {
+  display: block;
+  padding: 3px;
+}
+
+#lista table {
+  width: 330px;
+}
+
+#lista th {
+  color: #ffffff;
+  background-color: #e92345;
+  text-align: left;
+}
+
+#lista.tabContainer {
+  border: 1px solid #000000;
+  border-right: 1px;
+  border-top: 0px;
+}
+
+.container {
+  width: 90vw;
+  height: 300px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+#lista .scrollContainer {
+  width: 350px;
+  height: 250px;
+  overflow: auto;
+}
+
+#lista .tabela-coluna1 {
+  width: 90px;
+  padding-top: 2px;
 }
 </style>

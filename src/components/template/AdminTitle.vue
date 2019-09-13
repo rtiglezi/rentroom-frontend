@@ -2,7 +2,7 @@
   <div class="header pb-2 mb-2">
     <b-navbar fixed toggleable="lg" type="dark" class="header-nav" v-if="user">
       <b-navbar-brand href="#" class="header-title">
-        <i @click="navigate('/')" class="fa fa-arrow-left fa-lg mr-2"></i>
+        <i @click="navigate('/admin')" class="fa fa-arrow-left fa-lg mr-1"></i>
         {{main}}
       </b-navbar-brand>
     </b-navbar>

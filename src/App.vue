@@ -2,7 +2,6 @@
   <div id="app">
     <Loading v-if="validatingToken"/>
     <Content v-else/>
-    <Footer/>
   </div>
 </template>
 
@@ -12,12 +11,11 @@ import { userKey } from "@/global";
 import { mapState } from "vuex";
 import Header from "@/components/template/Header";
 import Content from "@/components/template/Content";
-import Footer from "@/components/template/Footer";
 import Loading from "@/components/template/Loading";
 
 export default {
   name: "App",
-  components: { Header, Content, Footer, Loading },
+  components: { Header, Content, Loading },
   computed: mapState(["user"]),
   data: function() {
     return {
@@ -64,11 +62,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
   display: grid;
-  grid-template-rows: 1fr 20px;
+  grid-template-rows: 1fr;
   grid-template-columns: 1fr;
   grid-template-areas:
     "content"
-    "footer";
 }
 
 .adm-msg-error {

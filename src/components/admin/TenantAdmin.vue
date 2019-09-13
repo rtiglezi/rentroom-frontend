@@ -1,6 +1,6 @@
 <template>
   <div class="tenant-admin">
-    <PageTitle main="tenants" />
+    <AdminTitle main="Inquilinos" />
 
     <b-modal
       size="lg"
@@ -155,11 +155,11 @@
 <script>
 import { baseApiUrl, showError } from "@/global";
 import axios from "axios";
-import PageTitle from "../template/PageTitle";
+import AdminTitle from "../template/AdminTitle";
 
 export default {
   name: "tenantAdmin",
-  components: { PageTitle },
+  components: { AdminTitle },
   data: function() {
     return {
       modalShow: false,
