@@ -1,17 +1,16 @@
 <template>
-  <div class="home">
+  <div>
     <HomeTitle main="home" />
     <b-card>
-      <b-button @click="navigate('/rentbyday')" block variant="info">
+      <b-button @click="navigate('/rentbyday')" block variant="outline-danger">
         <i class="fa fa-calendar-check fa-lg"></i>
-        <br />Pesquisa por dia
+        <br />Pesquisar dia específico
       </b-button>
-      <b-button @click="navigate('/rentbyweek')" block variant="danger">
+      <b-button @click="navigate('/rentbyweek')" block variant="outline-danger">
         <i class="fa fa-calendar fa-lg"></i>
-        <br />Pesquisa por semana
+        <br />Pesquisar na semana
       </b-button>
-
-      <b-button @click="navigate('/rents')" block variant="success">
+      <b-button @click="navigate('/rents')" block variant="outline-info">
         <i class="fa fa-user-clock fa-lg"></i>
         <br />Minhas Reservas
       </b-button>
@@ -33,7 +32,8 @@ export default {
       this.$router.push(link);
     }
   },
-  mounted() {}
+  mounted() {    
+  }
 };
 </script>
 <style>

@@ -12,8 +12,6 @@
 <script>
 import { mapState } from "vuex";
 import { userKey } from "@/global";
-import { baseApiUrl } from "@/global";
-import axios from "axios";
 
 export default {
   name: "PageTitle",

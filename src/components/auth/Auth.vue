@@ -2,44 +2,64 @@
   <div class="auth-content" v-on:keyup.enter="submitByKey">
     <div>
       <div class="text-center">
-        <span class="auth-logo">
+        <span style="color:crimson" class="auth-logo">
           <i class="fa fa-door-open fa-lg"></i> Salafácil
-          </span>
+        </span>
       </div>
 
       <hr />
 
-       <div v-if="!forgotPass" class="text-center">
-        <div class="auth-title">Login</div>
+      <div v-if="!forgotPass" class="text-center">
+        <div class="auth-title"></div>
 
-        <b-form-group>
-          <b-form-input v-model="user.email" type="text" placeholder="E-mail" />
-        </b-form-group>
-
-        <b-form-group>
-          <b-form-input
-            v-if="!forgotPass"
-            v-model="user.password"
-            type="password"
-            placeholder="Senha"
-          />
-        </b-form-group>
-
-        <b-button variant="dark" @click="signin" class="mb-3">Entrar</b-button>
-        <div>
-          <a class="forgot" href="#" @click="forgotPass = true">Esqueci a senha</a>
+        <div style="color:#333" class="mb-2">
+          Login
+          <br />Informe seus dados de acesso:
         </div>
+
+        <b-input-group class="mb-2">
+          <b-input-group-prepend>
+            <span class="input-group-text">
+              <i class="fa fa-at fa-lg"></i>
+            </span>
+          </b-input-group-prepend>
+          <b-form-input v-model="user.email" type="text" placeholder="E-mail" />
+        </b-input-group>
+
+        <b-input-group class="mb-3">
+          <b-input-group-prepend>
+            <span class="input-group-text">
+              <i class="fa fa-lock fa-lg"></i>
+            </span>
+          </b-input-group-prepend>
+          <b-form-input v-model="user.password" type="password" placeholder="Senha" />
+        </b-input-group>
+
+        <b-button block variant="danger" @click="signin" class="mb-3">Entrar</b-button>
+        <b-button block variant="info" @click="forgotPass = true" class="mb-3">Esqueci a Senha</b-button>
       </div>
 
       <div v-if="forgotPass" class="text-center">
-        <div class="auth-title">Redefinir a Senha</div>
-        <b-form-input v-model="user.email" type="text" placeholder="E-mail" />
+        <div v-if="forgotPass" style="color:#333" class="mb-2">
+          Redefinir senha.
+          <br />Informe seu e-mail:
+        </div>
+
+        <b-input-group class="mb-2">
+          <b-input-group-prepend>
+            <span class="input-group-text">
+              <i class="fa fa-at fa-lg"></i>
+            </span>
+          </b-input-group-prepend>
+          <b-form-input v-model="user.email" type="text" placeholder="E-mail" />
+        </b-input-group>
+
         <div :class="lblClass">{{txtLabel}}</div>
         <div class="mt-3">
-          <b-button variant="dark" @click="forgot" class="mb-3">{{ txtButton }}</b-button>
+          <b-button block variant="dark" @click="forgot" class="mb-3">{{ txtButton }}</b-button>
         </div>
         <div>
-          <a class="forgot" href="#" @click="forgotPass = false">Voltar ao login</a>
+          <b-button block variant="info" @click="forgotPass = false" class="mb-3">Voltar ao login</b-button>
         </div>
       </div>
     </div>
@@ -57,7 +77,7 @@ export default {
       user: {},
       forgotPass: false,
       queryEmail: "",
-      txtButton: "Redefinir",
+      txtButton: "Redefinir Senha",
       txtLabel: "",
       lblClass: ""
     };
@@ -116,13 +136,12 @@ export default {
 </script>
 
 <style>
-
 .auth-content {
-  background-color: #C82333;
+  background-color: white;
   height: 100%;
   width: 100%;
   color: white;
-  padding: 25px;
+  padding: 0px;
 }
 
 .auth-logo {
@@ -139,5 +158,13 @@ export default {
 
 .forgot {
   color: white;
+}
+
+.lblSuccess {
+  color: green;
+}
+
+.lblErr {
+  color: red;
 }
 </style>

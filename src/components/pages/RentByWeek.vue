@@ -1,6 +1,6 @@
 <template>
   <div class="rentByWeek">
-    <PageTitle main="Reserva de sala" />
+    <PageTitle main="Pesquisar na semana" />
 
     <b-modal
       v-bind:hide-footer="true"
@@ -92,7 +92,7 @@
         </b-row>
 
         <div class="text-right">
-          <b-button v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
+          <b-button variant="danger" v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
             <i class="fa fa-check fa-lg"></i>
             Prosseguir
           </b-button>
@@ -122,11 +122,11 @@
         @click="setRoom(item)"
       >{{ item.name }}</b-button>
      
-      <div v-if="rentEnabled">
-        <b-button @click="previousWeek()" variant="link">
+      <div v-if="rentEnabled" class="mt-4">
+        <b-button @click="previousWeek()" variant="outline-danger" size="sm">
           <i class="fas fa-arrow-left"></i> semana anterior
         </b-button>
-        <b-button @click="nextWeek()" variant="link">
+        <b-button class="ml-2" @click="nextWeek()" variant="outline-danger" size="sm">
           próxima semana
           <i class="fas fa-arrow-right"></i>
         </b-button>
@@ -136,10 +136,10 @@
         <div v-if="rentEnabled" class="tabContainer" id="lista">
           <table>
             <thead>
-              <tr style="font-weight: bold; background-color:crimson; color: white">
+              <tr style="background-color:grey; color: white; font-size: .9em">
                 <td>Hor</td>
                 <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
-                  <div v-if="isItToday(itemCol)" style="color:white; background-color: black">
+                  <div v-if="isItToday(itemCol)" style="color:white; background-color: #333">
                     {{ getWeekDayName(itemCol) }}
                     <br />
                     {{ itemCol | moment("DD") }}
@@ -160,25 +160,22 @@
                 <tr v-for="itemRow in schedule" :key="itemRow.hour">
                   <td
                     class="tabela-coluna0"
-                    style="background-color: #ccc"
+                    style="background-color: grey; color: white; font-size: .9em"
                   >{{ itemRow.hour.substring(0,2) }}h</td>
                   <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
                     <i
                       v-if="getStatus(itemRow.hour, itemCol)"
-                      class="fa fa-calendar-check fa-2x"
-                      style="color:#F9D5D5;"
+                      class="fa fa-calendar-check fa-2x unavaiable"
                     ></i>
                     <i
                       v-else-if="!itemRow.isActive"
-                      class="fa fa-calendar-check fa-2x"
-                      style="color:#ddd"
+                      class="fa fa-calendar-check fa-2x inactive"
                     ></i>
                     <i
                       v-else
                       @click="reserv(itemRow.value, itemRow.hour, itemCol)"
                       v-b-modal="'mymodal'"
-                      class="fa fa-calendar-check fa-2x"
-                      style="color:red; cursor:pointer"
+                      class="fa fa-calendar-check fa-2x avaiable"
                     ></i>
                     <br />
                     <div style="font-size: .7em">{{ itemRow.value }}</div>
@@ -229,7 +226,6 @@ export default {
       modalShow: false,
       modalConfirm: false,
       rooms: [],
-      users: [],
       schedule: [],
       items: []
     };
@@ -239,12 +235,6 @@ export default {
       const url = `${baseApiUrl}/rooms`;
       axios.get(url).then(res => {
         this.rooms = res.data;
-      });
-    },
-    loadUsers() {
-      const url = `${baseApiUrl}/users`;
-      axios.get(url).then(res => {
-        this.users = res.data;
       });
     },
     setDate() {
@@ -308,15 +298,14 @@ export default {
     },
     refresh() {
       this.loadRooms();
-      this.loadUsers();
       this.clickModalBtn();
       this.clickModalBtnConfirm();
     },
     getVariant(selectedRoom) {
       if (selectedRoom === this.rent.room) {
-        return "danger";
+        return "secondary";
       } else {
-        return "outline-danger";
+        return "outline-secondary";
       }
     },
     getWeek(room) {
@@ -357,6 +346,8 @@ export default {
       finalDate = this.$moment(new Date(finalDate)).format("YYYY-MM-DD");
 
       const url = `${baseApiUrl}/rents?room=${room._id}&dates=${this.daysOnWeek}`;
+
+      console.log(url)
 
       axios.get(url).then(res => {
         this.rents = res.data;
@@ -471,7 +462,7 @@ td span {
 
 .container {
   width: 90vw;
-  height: 300px;
+  height: 350px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -480,7 +471,7 @@ td span {
 
 #lista .scrollContainer {
   width: 350px;
-  height: 250px;
+  height: 280px;
   overflow: auto;
 }
 
@@ -488,4 +479,16 @@ td span {
   width: 90px;
   padding-top: 2px;
 }
+
+.unavaiable {
+  color: rgba(165, 42, 42, 0.13);
+}
+.avaiable {
+  color: brown;
+  cursor: pointer;
+}
+.inactive {
+  color: #ddd;
+}
+
 </style>

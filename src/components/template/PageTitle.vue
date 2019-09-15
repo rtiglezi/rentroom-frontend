@@ -1,6 +1,6 @@
 <template>
-  <div class="header pb-2 mb-2">
-    <b-navbar fixed toggleable="lg" type="dark" class="header-nav" v-if="user">
+  <div class="page pb-2 mb-2">
+    <b-navbar fixed toggleable="lg" type="dark" class="page-nav" v-if="user">
       <b-navbar-brand href="#" class="header-title">
         <i @click="navigate('/')" class="fa fa-arrow-left fa-lg mr-2"></i>
         {{main}}
@@ -12,8 +12,6 @@
 <script>
 import { mapState } from "vuex";
 import { userKey } from "@/global";
-import { baseApiUrl } from "@/global";
-import axios from "axios";
 
 export default {
   name: "PageTitle",
@@ -41,10 +39,10 @@ export default {
 };
 </script>
 <style>
-.header-nav {
-  background-color: rgb(163, 39, 39);
+.page-nav {
+  background-color: brown;
 }
-.header {
-  background-color: #c82333;
+.page {
+  background-color: rgb(196, 66, 66);
 }
 </style>

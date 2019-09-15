@@ -64,7 +64,7 @@
                   <br />Permissões
                 </b-col>
 
-                <b-col md="8" sm="12">
+                <b-col md="8" sm="12" v-if="isAMasterUser()">
                   <b-row>
                     <b-col>
                       <div>Usuário pertencente à empresa:</div>
@@ -87,32 +87,10 @@
                         v-if="showSpanError('Inquilino')"
                         class="adm-msg-error"
                       >{{ errors.first('Inquilino') }}</span>
+                      <hr />
                     </b-col>
                   </b-row>
-                  <hr />
-                  <b-row>
-                    <b-col>
-                      <b-form-group
-                        label="Tem acesso à(s) unidade(s):"
-                        label-for="user-allowedRooms"
-                      >
-                        <b-form-checkbox-group
-                          stacked
-                          id="user-allowedRooms"
-                          v-model="user.allowedRooms"
-                          name="rooms"
-                        >
-                          <b-form-checkbox
-                            :disabled="mode === 'remove'"
-                            v-for="room in rooms"
-                            :key="room._id"
-                            :value="room._id"
-                          >{{ room.name }}</b-form-checkbox>
-                        </b-form-checkbox-group>
-                      </b-form-group>
-                    </b-col>
-                  </b-row>
-                  <hr />
+
                   <b-row>
                     <b-col>
                       <b-form-group label="Perfil de acesso:" label-for="user-profiles">
@@ -185,7 +163,7 @@
         :per-page="perPage"
         :current-page="currentPage"
         responsive
-        bordered=""
+        bordered
         stacked
         small
         :fields="items"
@@ -412,6 +390,10 @@ export default {
     getProfilesLoggedUser() {
       let loggedUser = JSON.parse(localStorage.getItem(userKey));
       this.profilesLoggedUser = loggedUser.profiles;
+    },
+
+    isAMasterUser(){
+      return this.profilesLoggedUser.indexOf("master") != -1;
     }
   },
   mounted() {

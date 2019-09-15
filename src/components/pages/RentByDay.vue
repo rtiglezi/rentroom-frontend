@@ -1,6 +1,6 @@
 <template>
   <div class="rentByDay">
-    <PageTitle main="Reserva de sala" />
+    <PageTitle main="Pesquisar dia específico" />
 
     
     <b-modal
@@ -93,7 +93,7 @@
         </b-row>
 
         <div class="text-right">
-          <b-button v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
+          <b-button variant="danger" v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
             <i class="fa fa-check fa-lg"></i>
             Prosseguir
           </b-button>
@@ -101,7 +101,7 @@
             <i class="fas fa-save fa-lg"></i>
             Salvar Edição
           </b-button>
-          <b-button variant="danger" class="ml-2" v-if="mode === 'remove'" @click="remove">
+          <b-button variant="secondary" class="ml-2" v-if="mode === 'remove'" @click="remove">
             <i class="far fa-trash-alt fa-lg"></i>
             Excluir?
           </b-button>
@@ -113,7 +113,7 @@
 
     <div style="text-align:center">
       <div class="mb-2">
-        <i class="fas fa-calendar-plus"></i> Informe abaixo a data desejada:
+        <i class="fas fa-calendar-plus"></i> Informe abaixo o dia desejado:
       </div>
       <b-input class="inputDate" id="date" type="date" v-model="rent.date" @change="setDate()"></b-input>
       <hr />
@@ -211,7 +211,6 @@ export default {
       modalShow: false,
       modalConfirm: false,
       rooms: [],
-      users: [],
       schedule: [],
       items: []
     };
@@ -221,12 +220,6 @@ export default {
       const url = `${baseApiUrl}/rooms`;
       axios.get(url).then(res => {
         this.rooms = res.data;
-      });
-    },
-    loadUsers() {
-      const url = `${baseApiUrl}/users`;
-      axios.get(url).then(res => {
-        this.users = res.data;
       });
     },
     setDate() {
@@ -311,15 +304,14 @@ export default {
     },
     refresh() {
       this.loadRooms();
-      this.loadUsers();
       this.clickModalBtn();
       this.clickModalBtnConfirm();
     },
     getVariant(selectedRoom) {
       if (selectedRoom === this.rent.room) {
-        return "danger";
+        return "secondary";
       } else {
-        return "outline-danger";
+        return "outline-secondary";
       }
     }
   },
@@ -331,6 +323,6 @@ export default {
 <style>
 .inputDate {
   background-color: white;
-  border-color: brown;
+  border-color: black;
 }
 </style>

@@ -2,11 +2,9 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Home from "@/components/pages/Home";
+import Contract from "@/components/pages/Contract";
 import Admin from "@/components/pages/Admin";
-
 import Rents from "@/components/pages/Rents";
-
-
 import RentByDay from "@/components/pages/RentByDay";
 import RentByWeek from "@/components/pages/RentByWeek";
 
@@ -26,6 +24,11 @@ const routes = [
     name: "home",
     path: "/",
     component: Home
+  },
+  {
+    name: "contract",
+    path: "/contract",
+    component: Contract
   },
   {
     name: "admin",

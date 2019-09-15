@@ -1,6 +1,6 @@
 <template>
   <div class="admin">
-    <PageTitle main="Administração" />
+    <PageTitle main="Administrar o sistema" />
     <b-card>
       <b-button  v-if="user.profiles.indexOf('master')!=-1" @click="navigate('/admin/tenants')" block variant="outline-danger">
         <i class="fa fa-building fa-lg"></i>
@@ -21,7 +21,6 @@
 <script>
 import PageTitle from "../template/PageTitle";
 import { mapState } from "vuex";
-import { userKey } from "@/global";
 
 export default {
   name: "Home",

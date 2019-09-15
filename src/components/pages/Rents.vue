@@ -56,7 +56,7 @@
           <b-col cols="2">
             <i class="fa fa-clock fa-2x mt-1"></i>
           </b-col>
-          <b-col cols="6" class="mt-1">{{ rent.date | moment("DD/MM/YYYY")  }}</b-col>
+          <b-col cols="6" class="mt-1">{{ rent.date | moment("DD/MM/YYYY") }}</b-col>
           <b-col cols="4" class="mt-1 text-right">{{ rent.hour }}h</b-col>
         </b-row>
       </div>
@@ -77,7 +77,7 @@
             <b-button
               @click="chooseRent(rent)"
               v-b-modal="'mymodalconfirm'"
-              variant="outline-danger"
+              variant="outline-secondary"
               class="mt-1 mb-1 mr-1"
             >Cancelar esta reserva</b-button>
           </div>
@@ -92,9 +92,13 @@ import PageTitle from "../template/PageTitle";
 import { baseApiUrl } from "@/global";
 import axios from "axios";
 
+import { mapState } from "vuex";
+import { userKey } from "@/global";
+
 export default {
   name: "Rents",
   components: { PageTitle },
+  computed: mapState(["user"]),
   data: function() {
     return {
       valueBR: null,
@@ -115,7 +119,7 @@ export default {
   watch: {},
   methods: {
     loadRents() {
-      const url = `${baseApiUrl}/rents`;
+      const url = `${baseApiUrl}/rents?user=${this.user._id}`;
       axios.get(url).then(res => {
         this.rents = res.data;
         this.totalRows = this.rents.length;
@@ -153,7 +157,7 @@ export default {
 <style>
 .rentBox {
   border-radius: 5px;
-  background-color: #1f9e3a;
+  background-color: #5BC0DE;
   color: white;
   padding: 3px 10px 3px 10px;
   margin-bottom: 10px;
