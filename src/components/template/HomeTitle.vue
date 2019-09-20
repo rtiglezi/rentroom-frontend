@@ -2,7 +2,7 @@
   <div class="home pb-2 mb-2">
     <b-navbar fixed toggleable="lg" type="dark" class="home-nav" v-if="user">
       <b-navbar-brand href="#" class="header-title">
-        <i class="fa fa-door-open fa-lg mr-1"></i> Salafácil
+        <i class="fa fa-door-open fa-lg mr-1"></i> SalaSol
       </b-navbar-brand>
 
       <!-- Right aligned nav items -->

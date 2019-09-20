@@ -122,7 +122,7 @@
         @click="setRoom(item)"
       >{{ item.name }}</b-button>
      
-      <div v-if="rentEnabled" class="mt-4">
+      <div v-if="rentEnabled" class="mt-4 mb-2">
         <b-button @click="previousWeek()" variant="outline-danger" size="sm">
           <i class="fas fa-arrow-left"></i> semana anterior
         </b-button>
@@ -137,17 +137,19 @@
           <table>
             <thead>
               <tr style="background-color:grey; color: white; font-size: .9em">
-                <td>Hor</td>
+                <td>[Hr]</td>
                 <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
                   <div v-if="isItToday(itemCol)" style="color:white; background-color: #333">
-                    {{ getWeekDayName(itemCol) }}
-                    <br />
-                    {{ itemCol | moment("DD") }}
+                    {{ getWeekDayName(itemCol) }} <br>
+                    {{ itemCol | moment("DD") }} <br>
+                    {{ getMonthName(itemCol) }}<br>
+                    {{ itemCol | moment("YYYY") }}
                   </div>
                   <div v-else>
-                    {{ getWeekDayName(itemCol) }}
-                    <br />
-                    {{ itemCol | moment("DD") }}
+                    {{ getWeekDayName(itemCol) }} <br>
+                    {{ itemCol | moment("DD") }} <br>
+                    {{ getMonthName(itemCol) }}<br>
+                    {{ itemCol | moment("YYYY") }}
                   </div>
                 </td>
               </tr>
@@ -381,6 +383,47 @@ export default {
       }
       return weekDayName;
     },
+     getMonthName(val) {
+      let monthName = "";
+      let n = this.$moment(val).format("MM");
+      if (n == 1) {
+        monthName = "Jan";
+      }
+       if (n == 2) {
+        monthName = "Fev";
+      }
+       if (n == 3) {
+        monthName = "Mar";
+      }
+       if (n == 4) {
+        monthName = "Abr";
+      }
+       if (n == 5) {
+        monthName = "Mai";
+      }
+       if (n == 6) {
+        monthName = "Jun";
+      }
+       if (n == 7) {
+        monthName = "Jul";
+      }
+       if (n == 8) {
+        monthName = "Ago";
+      }
+       if (n == 9) {
+        monthName = "Set";
+      }
+       if (n == 10) {
+        monthName = "Out";
+      }
+       if (n == 11) {
+        monthName = "Nov";
+      }
+       if (n == 12) {
+        monthName = "Dez";
+      }
+      return monthName;
+    },
     previousWeek() {
       this.today = this.today.setDate(this.today.getDate() - 7);
       this.today = new Date(this.today);
@@ -462,7 +505,7 @@ td span {
 
 .container {
   width: 90vw;
-  height: 350px;
+  height: 300px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -471,7 +514,7 @@ td span {
 
 #lista .scrollContainer {
   width: 350px;
-  height: 280px;
+  height: 210px;
   overflow: auto;
 }
 
