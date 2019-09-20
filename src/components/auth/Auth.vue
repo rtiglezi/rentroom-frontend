@@ -3,7 +3,7 @@
     <div>
       <div class="text-center">
         <span style="color:crimson" class="auth-logo">
-          <i class="fa fa-door-open fa-lg"></i> Salafácil
+          <i class="fa fa-door-open fa-lg"></i> SalaSol
         </span>
       </div>
 
