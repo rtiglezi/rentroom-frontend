@@ -92,7 +92,12 @@
         </b-row>
 
         <div class="text-right">
-          <b-button variant="danger" v-b-modal="'mymodalconfirm'" class="btn-main ml-2" v-if="mode === 'save'">
+          <b-button
+            variant="danger"
+            v-b-modal="'mymodalconfirm'"
+            class="btn-main ml-2"
+            v-if="mode === 'save'"
+          >
             <i class="fa fa-check fa-lg"></i>
             Prosseguir
           </b-button>
@@ -121,18 +126,34 @@
         :key="item._id"
         @click="setRoom(item)"
       >{{ item.name }}</b-button>
-     
+
       <div v-if="rentEnabled" class="mt-4 mb-2">
-        <b-button @click="previousWeek()" variant="outline-danger" size="sm">
-          <i class="fas fa-arrow-left"></i> semana anterior
+        <b-button
+          :disabled="disabledNextAndPrevious"
+          @click="previousWeek()"
+          variant="danger"
+          size="sm"
+        >
+          <i class="fas fa-arrow-left"></i>
+          {{ lblBtnPrevious }}
         </b-button>
-        <b-button class="ml-2" @click="nextWeek()" variant="outline-danger" size="sm">
-          próxima semana
+        <b-button
+          :disabled="disabledNextAndPrevious"
+          class="ml-2"
+          @click="nextWeek()"
+          variant="danger"
+          size="sm"
+        >
+          {{ lblBtnNext }}
           <i class="fas fa-arrow-right"></i>
         </b-button>
       </div>
 
-      <div class="container">
+      <div v-if="loading" class="mt-5">
+         <b-spinner style="width: 3rem; height: 3rem;" label="Large Spinner"></b-spinner>
+      </div>
+      
+      <div class="container" v-else>
         <div v-if="rentEnabled" class="tabContainer" id="lista">
           <table>
             <thead>
@@ -140,15 +161,21 @@
                 <td>[Hr]</td>
                 <td class="tabela-coluna1" v-for="itemCol in daysOnWeek" :key="itemCol">
                   <div v-if="isItToday(itemCol)" style="color:white; background-color: #333">
-                    {{ getWeekDayName(itemCol) }} <br>
-                    {{ itemCol | moment("DD") }} <br>
-                    {{ getMonthName(itemCol) }}<br>
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                    <br />
+                    {{ getMonthName(itemCol) }}
+                    <br />
                     {{ itemCol | moment("YYYY") }}
                   </div>
                   <div v-else>
-                    {{ getWeekDayName(itemCol) }} <br>
-                    {{ itemCol | moment("DD") }} <br>
-                    {{ getMonthName(itemCol) }}<br>
+                    {{ getWeekDayName(itemCol) }}
+                    <br />
+                    {{ itemCol | moment("DD") }}
+                    <br />
+                    {{ getMonthName(itemCol) }}
+                    <br />
                     {{ itemCol | moment("YYYY") }}
                   </div>
                 </td>
@@ -169,10 +196,7 @@
                       v-if="getStatus(itemRow.hour, itemCol)"
                       class="fa fa-calendar-check fa-2x unavaiable"
                     ></i>
-                    <i
-                      v-else-if="!itemRow.isActive"
-                      class="fa fa-calendar-check fa-2x inactive"
-                    ></i>
+                    <i v-else-if="!itemRow.isActive" class="fa fa-calendar-check fa-2x inactive"></i>
                     <i
                       v-else
                       @click="reserv(itemRow.value, itemRow.hour, itemCol)"
@@ -202,6 +226,10 @@ export default {
   components: { PageTitle },
   data: function() {
     return {
+      loading: false,
+      lblBtnPrevious: "anterior",
+      lblBtnNext: "próxima",
+      disabledNextAndPrevious: false,
       rentEnabled: false,
       today: new Date(),
       daysOnWeek: [],
@@ -286,6 +314,7 @@ export default {
       this.valueBR = this.rent.value;
     },
     save() {
+      this.loading = true;
       this.rent.roomName = this.selectedRoom.name;
       axios
         .post(`${baseApiUrl}/rents`, this.rent)
@@ -297,6 +326,11 @@ export default {
           this.refresh();
         })
         .catch();
+      let that = this;
+      setTimeout(function() {
+        that.disabledNextAndPrevious = false;
+        that.loading = false;
+      }, 1000);
     },
     refresh() {
       this.loadRooms();
@@ -349,12 +383,15 @@ export default {
 
       const url = `${baseApiUrl}/rents?room=${room._id}&dates=${this.daysOnWeek}`;
 
-      console.log(url)
-
       axios.get(url).then(res => {
         this.rents = res.data;
         this.schedule = room.schedule;
         this.rentEnabled = true;
+        let that = this;
+        setTimeout(function() {
+          that.disabledNextAndPrevious = false;
+          that.loading = false;
+        }, 500);
       });
     },
     getWeekDayName(val) {
@@ -383,43 +420,43 @@ export default {
       }
       return weekDayName;
     },
-     getMonthName(val) {
+    getMonthName(val) {
       let monthName = "";
       let n = this.$moment(val).format("MM");
       if (n == 1) {
         monthName = "Jan";
       }
-       if (n == 2) {
+      if (n == 2) {
         monthName = "Fev";
       }
-       if (n == 3) {
+      if (n == 3) {
         monthName = "Mar";
       }
-       if (n == 4) {
+      if (n == 4) {
         monthName = "Abr";
       }
-       if (n == 5) {
+      if (n == 5) {
         monthName = "Mai";
       }
-       if (n == 6) {
+      if (n == 6) {
         monthName = "Jun";
       }
-       if (n == 7) {
+      if (n == 7) {
         monthName = "Jul";
       }
-       if (n == 8) {
+      if (n == 8) {
         monthName = "Ago";
       }
-       if (n == 9) {
+      if (n == 9) {
         monthName = "Set";
       }
-       if (n == 10) {
+      if (n == 10) {
         monthName = "Out";
       }
-       if (n == 11) {
+      if (n == 11) {
         monthName = "Nov";
       }
-       if (n == 12) {
+      if (n == 12) {
         monthName = "Dez";
       }
       return monthName;
@@ -427,12 +464,16 @@ export default {
     previousWeek() {
       this.today = this.today.setDate(this.today.getDate() - 7);
       this.today = new Date(this.today);
+      this.disabledNextAndPrevious = true;
+      this.loading = true;
       this.setRoom(this.selectedRoom);
       this.refresh();
     },
     nextWeek() {
       this.today = this.today.setDate(this.today.getDate() + 7);
       this.today = new Date(this.today);
+      this.disabledNextAndPrevious = true;
+      this.loading = true;
       this.setRoom(this.selectedRoom);
       this.refresh();
     },
@@ -533,5 +574,4 @@ td span {
 .inactive {
   color: #ddd;
 }
-
 </style>

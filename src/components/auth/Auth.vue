@@ -23,7 +23,7 @@
               <i class="fa fa-at fa-lg"></i>
             </span>
           </b-input-group-prepend>
-          <b-form-input v-model="user.email" type="text" placeholder="E-mail" />
+          <b-form-input @keyup="min($event)" v-model="user.email" type="text" placeholder="E-mail" />
         </b-input-group>
 
         <b-input-group class="mb-3">
@@ -35,7 +35,11 @@
           <b-form-input v-model="user.password" type="password" placeholder="Senha" />
         </b-input-group>
 
-        <b-button block variant="danger" @click="signin" class="mb-3">Entrar</b-button>
+        <b-button v-if="logando" block variant="danger" disabled class="mb-3">
+          <b-spinner small type="grow"></b-spinner>Logando...
+        </b-button>
+        <b-button v-else block variant="danger" @click="signin" class="mb-3">Entrar</b-button>
+
         <b-button block variant="info" @click="forgotPass = true" class="mb-3">Esqueci a Senha</b-button>
       </div>
 
@@ -74,6 +78,7 @@ export default {
   name: "Auth",
   data: function() {
     return {
+      logando: false,
       user: {},
       forgotPass: false,
       queryEmail: "",
@@ -84,6 +89,7 @@ export default {
   },
   methods: {
     signin() {
+      this.logando = true;
       axios
         .post(`${baseApiUrl}/users/authenticate`, this.user)
         .then(res => {
@@ -97,6 +103,7 @@ export default {
         .catch(e => {
           if (e) {
             showError("Credenciais inválidas.");
+            this.logando = false;
           }
         });
     },
@@ -123,6 +130,9 @@ export default {
       } else {
         this.forgot();
       }
+    },
+    min(event) {
+      event.target.value = event.target.value.toLowerCase();
     }
   },
   mounted() {
